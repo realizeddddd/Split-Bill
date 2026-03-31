@@ -260,6 +260,48 @@ fieldset { border: none; padding: 0; margin: 0; }
     color: #374151;
   }
 
+  #print-only .detail-heading {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: #1a1a2e;
+    border-top: 2px solid #e5e7eb;
+    padding-top: 12px;
+  }
+
+  #print-only .person-block {
+    margin-bottom: 16px;
+  }
+
+  #print-only .person-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: #f3f4f6;
+    padding: 6px 10px;
+    border-left: 3px solid #4f46e5;
+    margin-bottom: 0;
+  }
+
+  #print-only .person-block table {
+    margin-bottom: 0;
+  }
+
+  #print-only .extras-row td {
+    color: #6b7280;
+    font-style: italic;
+  }
+
+  #print-only .person-total td {
+    font-weight: 700;
+    border-top: 1px solid #374151;
+  }
+
+  #print-only .empty-cell {
+    color: #9ca3af;
+    font-style: italic;
+  }
+
   #watermark {
     display: block;
     position: fixed;
