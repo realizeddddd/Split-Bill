@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Split Bill</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>Split Bill</h1>
+  </header>
+
+  <main class="container">
+
+    <!-- People -->
+    <section class="card" aria-labelledby="people-heading">
+      <h2 id="people-heading">People</h2>
+      <form class="row" onsubmit="addPerson(); return false;">
+        <label for="personInput" class="sr-only">Person name</label>
+        <input id="personInput" type="text" placeholder="Name" autocomplete="off" />
+        <button type="submit" class="btn-primary">Add</button>
+      </form>
+      <ul class="tag-list" id="peopleList" aria-label="People list"></ul>
+    </section>
+
+    <!-- Items -->
+    <section class="card" aria-labelledby="items-heading">
+      <h2 id="items-heading">Items</h2>
+      <form class="row" onsubmit="addItem(); return false;">
+        <label for="itemName" class="sr-only">Item name</label>
+        <input id="itemName" type="text" placeholder="Item name" autocomplete="off" />
+        <label for="itemCost" class="sr-only">Cost</label>
+        <input id="itemCost" type="number" placeholder="Cost" min="0" step="0.01" />
+        <label for="currency" class="sr-only">Currency</label>
+        <select id="currency" onchange="render()">
+          <option value="USD">USD ($)</option>
+          <option value="IDR">IDR (Rp)</option>
+        </select>
+        <button type="submit" class="btn-primary">Add</button>
+      </form>
+      <ul class="item-list" id="itemList" aria-label="Item list"></ul>
+    </section>
+
+    <!-- Tip & Tax -->
+    <section class="card" aria-labelledby="extras-heading">
+      <h2 id="extras-heading">Tip &amp; Tax</h2>
+      <fieldset class="extras">
+        <legend class="sr-only">Tip, tax and split options</legend>
+        <label for="tipPct">Tip % <input id="tipPct" type="number" value="0" min="0" max="100" step="0.5" oninput="render()" /></label>
+        <label for="taxPct">Tax % <input id="taxPct" type="number" value="0" min="0" max="100" step="0.5" oninput="render()" /></label>
+        <label for="extrasMode">
+          Split extras
+          <select id="extrasMode" onchange="render()">
+            <option value="equal">Equally</option>
+            <option value="proportional">Proportionally</option>
+          </select>
+        </label>
+      </fieldset>
+    </section>
+
+    <!-- Summary -->
+    <section class="card" aria-labelledby="summary-heading">
+      <h2 id="summary-heading">Summary</h2>
+      <ul class="summary-list" id="summaryList" aria-label="Per-person totals"></ul>
+      <footer class="totals" id="totals" aria-label="Bill totals"></footer>
+    </section>
+
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
