@@ -158,7 +158,7 @@ function exportPDF() {
   const extrasTotal = tipAmt + tax;
   const extrasMode = document.getElementById('extrasMode').value;
 
-  // Compute each person's item subtotal (before extras)
+  // Compute each person's item subtotal
   const itemShares = {};
   people.forEach(p => itemShares[p] = 0);
   items.forEach(item => {
@@ -190,71 +190,60 @@ function exportPDF() {
   }
 
   // Section 1: all items overview
-  const overviewTable = `
-    <table>
-      <thead>
-        <tr><th>Item</th><th>Cost</th><th>Assigned To</th><th>Per Person</th></tr>
-      </thead>
-      <tbody>
-        ${items.map(item => {
-          const assigned = item.assignees.filter(p => people.includes(p));
-          const perPerson = assigned.length ? fmt(item.cost / assigned.length) : '—';
-          return `<tr>
-            <td>${item.name}</td>
-            <td>${fmt(item.cost)}</td>
-            <td>${assigned.length ? assigned.join(', ') : '—'}</td>
-            <td>${perPerson}</td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>`;
+  let html = '<table>';
+  html += '<thead><tr><th>Item</th><th>Cost</th><th>Assigned To</th><th>Per Person</th></tr></thead><tbody>';
+  items.forEach(function(item) {
+    const assigned = item.assignees.filter(p => people.includes(p));
+    const perPerson = assigned.length ? fmt(item.cost / assigned.length) : '-';
+    html += '<tr>';
+    html += '<td>' + item.name + '</td>';
+    html += '<td>' + fmt(item.cost) + '</td>';
+    html += '<td>' + (assigned.length ? assigned.join(', ') : '-') + '</td>';
+    html += '<td>' + perPerson + '</td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
 
   // Section 2: per-person itemized detail
-  const personTables = people.map(person => {
-    const myItems = items.filter(item =>
-      item.assignees.includes(person) && people.includes(person)
-    );
+  if (people.length) {
+    html += '<h3 class="detail-heading">Per-Person Detail</h3>';
 
-    const itemRows = myItems.map(item => {
-      const assigned = item.assignees.filter(p => people.includes(p));
-      const share = item.cost / assigned.length;
-      return `<tr>
-        <td>${item.name}</td>
-        <td>${fmt(item.cost)}</td>
-        <td>${assigned.length}</td>
-        <td>${fmt(share)}</td>
-      </tr>`;
-    }).join('') || `<tr><td colspan="4" class="empty-cell">No items assigned</td></tr>`;
+    people.forEach(function(person) {
+      const myItems = items.filter(item => item.assignees.includes(person));
+      const extras = extrasPerPerson[person];
+      const grandTotal = itemShares[person] + extras;
 
-    const extras = extrasPerPerson[person];
-    const extrasRow = extras > 0
-      ? `<tr class="extras-row"><td><em>Tip &amp; Tax share</em></td><td></td><td></td><td>${fmt(extras)}</td></tr>`
-      : '';
+      html += '<div class="person-block">';
+      html += '<div class="person-name">' + person + '</div>';
+      html += '<table>';
+      html += '<thead><tr><th>Item</th><th>Total Cost</th><th>Shared by</th><th>Your Share</th></tr></thead>';
+      html += '<tbody>';
 
-    const grandTotal = itemShares[person] + extras;
+      if (myItems.length === 0) {
+        html += '<tr><td colspan="4" class="empty-cell">No items assigned</td></tr>';
+      } else {
+        myItems.forEach(function(item) {
+          const assigned = item.assignees.filter(p => people.includes(p));
+          const share = assigned.length ? item.cost / assigned.length : 0;
+          html += '<tr>';
+          html += '<td>' + item.name + '</td>';
+          html += '<td>' + fmt(item.cost) + '</td>';
+          html += '<td>' + assigned.length + '</td>';
+          html += '<td>' + fmt(share) + '</td>';
+          html += '</tr>';
+        });
+      }
 
-    return `
-      <div class="person-block">
-        <div class="person-name">${person}</div>
-        <table>
-          <thead>
-            <tr><th>Item</th><th>Total Cost</th><th>Shared by</th><th>Your Share</th></tr>
-          </thead>
-          <tbody>
-            ${itemRows}
-            ${extrasRow}
-            <tr class="person-total">
-              <td colspan="3">Total</td>
-              <td>${fmt(grandTotal)}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>`;
-  }).join('');
+      if (extras > 0) {
+        html += '<tr class="extras-row"><td>Tip &amp; Tax share</td><td></td><td></td><td>' + fmt(extras) + '</td></tr>';
+      }
 
-  breakdown.innerHTML = overviewTable
-    + (people.length ? `<h3 class="detail-heading">Per-Person Detail</h3>${personTables}` : '');
+      html += '<tr class="person-total"><td colspan="3">Total</td><td>' + fmt(grandTotal) + '</td></tr>';
+      html += '</tbody></table></div>';
+    });
+  }
 
+  breakdown.innerHTML = html;
   window.print();
 }
 
