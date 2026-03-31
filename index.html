@@ -47,7 +47,7 @@
       <h2 id="extras-heading">Tip &amp; Tax</h2>
       <fieldset class="extras">
         <legend class="sr-only">Tip, tax and split options</legend>
-        <label for="tipPct">Tip % <input id="tipPct" type="number" value="0" min="0" max="100" step="0.5" oninput="render()" /></label>
+        <label for="tipAmt">Tip <input id="tipAmt" type="number" value="0" min="0" step="0.01" oninput="render()" /></label>
         <label for="taxPct">Tax % <input id="taxPct" type="number" value="0" min="0" max="100" step="0.5" oninput="render()" /></label>
         <label for="extrasMode">
           Split extras
@@ -60,10 +60,11 @@
     </section>
 
     <!-- Summary -->
-    <section class="card" aria-labelledby="summary-heading">
+    <section class="card" id="summary-section" aria-labelledby="summary-heading">
       <h2 id="summary-heading">Summary</h2>
       <ul class="summary-list" id="summaryList" aria-label="Per-person totals"></ul>
       <footer class="totals" id="totals" aria-label="Bill totals"></footer>
+      <button class="btn-export" onclick="exportPDF()" aria-label="Export summary to PDF">⬇ Export to PDF</button>
     </section>
 
   </main>

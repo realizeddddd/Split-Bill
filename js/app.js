@@ -91,9 +91,9 @@ function renderItems() {
 
 function renderSummary() {
   const subtotal = items.reduce((s, i) => s + i.cost, 0);
-  const tipPct = parseFloat(document.getElementById('tipPct').value) || 0;
+  const tipAmt = parseFloat(document.getElementById('tipAmt').value) || 0;
   const taxPct = parseFloat(document.getElementById('taxPct').value) || 0;
-  const tip = subtotal * tipPct / 100;
+  const tip = tipAmt;
   const tax = subtotal * taxPct / 100;
   const total = subtotal + tip + tax;
   const extrasMode = document.getElementById('extrasMode').value;
@@ -142,10 +142,14 @@ function renderSummary() {
 
   totalsEl.innerHTML = `
     <p class="line"><span>Subtotal</span><span>${fmt(subtotal)}</span></p>
-    ${tip > 0 ? `<p class="line"><span>Tip (${tipPct}%)</span><span>${fmt(tip)}</span></p>` : ''}
+    ${tip > 0 ? `<p class="line"><span>Tip</span><span>${fmt(tip)}</span></p>` : ''}
     ${tax > 0 ? `<p class="line"><span>Tax (${taxPct}%)</span><span>${fmt(tax)}</span></p>` : ''}
     <p class="line grand"><span>Total</span><span>${fmt(total)}</span></p>
   `;
+}
+
+function exportPDF() {
+  window.print();
 }
 
 render();
