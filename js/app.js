@@ -149,6 +149,34 @@ function renderSummary() {
 }
 
 function exportPDF() {
+  // Build print-only items breakdown
+  const currency = document.getElementById('currency').value;
+  const breakdown = document.getElementById('print-breakdown');
+
+  if (!items.length) {
+    breakdown.innerHTML = '<p>No items.</p>';
+  } else {
+    breakdown.innerHTML = `
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Cost</th><th>Assigned To</th><th>Per Person</th></tr>
+        </thead>
+        <tbody>
+          ${items.map(item => {
+            const assigned = item.assignees.filter(p => people.includes(p));
+            const perPerson = assigned.length ? fmt(item.cost / assigned.length) : '—';
+            return `<tr>
+              <td>${item.name}</td>
+              <td>${fmt(item.cost)}</td>
+              <td>${assigned.length ? assigned.join(', ') : '—'}</td>
+              <td>${perPerson}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    `;
+  }
+
   window.print();
 }
 

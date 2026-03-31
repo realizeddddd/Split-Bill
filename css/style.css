@@ -210,6 +210,9 @@ fieldset { border: none; padding: 0; margin: 0; }
 .btn-export:hover { background: #059669; }
 
 /* Print / PDF styles */
+#print-only { display: none; }
+#watermark { display: none; }
+
 @media print {
   body { background: #fff; padding: 0; }
   header h1 { color: #000; }
@@ -218,6 +221,51 @@ fieldset { border: none; padding: 0; margin: 0; }
   .btn-export { display: none; }
   .summary-row { border-bottom: 1px solid #e5e7eb; }
   .totals .line.grand { border-top: 2px solid #000; padding-top: 6px; }
+
+  #print-only {
+    display: block;
+    margin-top: 24px;
+  }
+
+  #print-only h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #374151;
+  }
+
+  #print-only table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  #print-only th, #print-only td {
+    text-align: left;
+    padding: 7px 10px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  #print-only th {
+    background: #f3f4f6;
+    font-weight: 600;
+    color: #374151;
+  }
+
+  #watermark {
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-35deg);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.08);
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 9999;
+    letter-spacing: 0.05em;
+  }
 }
   .row { flex-direction: column; }
   .extras { flex-direction: column; align-items: flex-start; }
