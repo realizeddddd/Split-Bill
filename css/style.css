@@ -216,7 +216,7 @@ fieldset { border: none; padding: 0; margin: 0; }
 @media print {
   body { background: #fff; padding: 0; }
   header h1 { color: #000; }
-  .container > section:not(#summary-section) { display: none; }
+  .container > section:not(#summary-section):not(#print-only) { display: none; }
   #summary-section { box-shadow: none; border: none; }
   .btn-export { display: none; }
   .summary-row { border-bottom: 1px solid #e5e7eb; }
