@@ -11,8 +11,28 @@ body {
 h1 {
   text-align: center;
   font-size: 1.8rem;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
   color: #4f46e5;
+}
+
+.event-name-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.event-name-wrap input {
+  max-width: 400px;
+  text-align: center;
+  font-size: 1rem;
+  color: #374151;
+  border-color: #e5e7eb;
+  background: transparent;
+}
+
+.event-name-wrap input:focus {
+  border-color: #4f46e5;
+  background: #fff;
 }
 
 .container {
@@ -236,10 +256,13 @@ fieldset { border: none; padding: 0; margin: 0; }
 /* Print / PDF styles */
 #print-only { display: none; }
 #watermark { display: none; }
+#print-event-name { display: none; }
 
 @media print {
   body { background: #fff; padding: 0; font-size: 9pt; }
-  header h1 { color: #000; font-size: 13pt; margin-bottom: 8px; }
+  header h1 { color: #000; font-size: 13pt; margin-bottom: 4px; }
+  .event-name-wrap { display: none; }
+  #print-event-name { text-align: center; font-size: 10pt; color: #374151; margin-bottom: 10px; font-style: italic; }
   .container > section:not(#summary-section):not(#print-only) { display: none; }
   #summary-section { box-shadow: none; border: none; padding: 8px 0; }
   .btn-export { display: none; }

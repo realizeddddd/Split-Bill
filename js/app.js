@@ -160,6 +160,16 @@ function renderSummary() {
 
 function exportPDF() {
   const breakdown = document.getElementById('print-breakdown');
+  const eventName = document.getElementById('eventName').value.trim();
+
+  // Show event name under the title for print
+  let eventNameEl = document.getElementById('print-event-name');
+  if (!eventNameEl) {
+    eventNameEl = document.createElement('p');
+    eventNameEl.id = 'print-event-name';
+    document.querySelector('header').appendChild(eventNameEl);
+  }
+  eventNameEl.textContent = eventName;
 
   const tipAmt = parseFloat(document.getElementById('tipAmt').value) || 0;
   const taxPct = parseFloat(document.getElementById('taxPct').value) || 0;
