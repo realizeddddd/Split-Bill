@@ -144,8 +144,7 @@ button {
 
 .summary-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   padding: 12px 14px;
   background: #f9fafb;
   border-radius: 8px;
@@ -153,6 +152,31 @@ button {
 
 .summary-row .name { font-weight: 500; }
 .summary-row .amount { font-size: 1.1rem; font-weight: 700; color: #4f46e5; }
+
+.summary-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-items {
+  margin-top: 6px;
+  padding-left: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #6b7280;
+  padding: 2px 0;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.summary-item:last-child { border-bottom: none; }
 
 .totals {
   border-top: 1px solid #e5e7eb;

@@ -133,12 +133,22 @@ function renderSummary() {
     return;
   }
 
-  summaryEl.innerHTML = people.map(p => `
-    <li class="summary-row">
-      <span class="name">${p}</span>
-      <strong class="amount">${fmt(shares[p])}</strong>
-    </li>
-  `).join('');
+  summaryEl.innerHTML = people.map(p => {
+    const myItems = items.filter(item => item.assignees.includes(p));
+    const itemLines = myItems.map(item => {
+      const assigned = item.assignees.filter(x => people.includes(x));
+      const share = assigned.length ? item.cost / assigned.length : 0;
+      return `<li class="summary-item">${item.name} <span>${fmt(share)}</span></li>`;
+    }).join('');
+    return `
+      <li class="summary-row">
+        <div class="summary-top">
+          <span class="name">${p}</span>
+          <strong class="amount">${fmt(shares[p])}</strong>
+        </div>
+        ${myItems.length ? `<ul class="summary-items">${itemLines}</ul>` : ''}
+      </li>`;
+  }).join('');
 
   totalsEl.innerHTML = `
     <p class="line"><span>Subtotal</span><span>${fmt(subtotal)}</span></p>
