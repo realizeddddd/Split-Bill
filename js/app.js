@@ -23,6 +23,7 @@ var T = {
     scanTitle: '📷 Scan Receipt',
     uploadLabel: '📂 Tap to upload receipt image',
     scanHint: 'Review detected items. Edit or remove before adding.',
+    scanNote: '⚠️ OCR results may not be accurate. Please review and edit each item before adding.',
     scanEmpty: 'No items detected. Try a clearer photo or add items manually.',
     reading: 'Reading receipt…', readingPct: 'Reading… ',
     scanFail: '❌ Failed to read image. Try a clearer photo.',
@@ -53,6 +54,7 @@ var T = {
     scanTitle: '📷 Scan Struk',
     uploadLabel: '📂 Ketuk untuk unggah foto struk',
     scanHint: 'Periksa item yang terdeteksi. Edit atau hapus sebelum menambahkan.',
+    scanNote: '⚠️ Hasil OCR mungkin tidak akurat. Harap periksa dan edit setiap item sebelum menambahkan.',
     scanEmpty: 'Tidak ada item terdeteksi. Coba foto yang lebih jelas atau tambah manual.',
     reading: 'Membaca struk…', readingPct: 'Membaca… ',
     scanFail: '❌ Gagal membaca gambar. Coba foto yang lebih jelas.',
@@ -93,6 +95,7 @@ function applyLang() {
   document.getElementById('scan-title').textContent = t('scanTitle');
   document.getElementById('uploadLabel').textContent = t('uploadLabel');
   document.getElementById('scan-hint').textContent = t('scanHint');
+  document.getElementById('scan-note').textContent = t('scanNote');
   document.getElementById('scan-back-btn').textContent = t('back');
   document.getElementById('scan-confirm-btn').textContent = t('addAll');
   // Lang toggle button
@@ -521,9 +524,18 @@ function shareWhatsAppPDF() {
   saveSession();
   captureCard(function(canvas) {
     var pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-    var imgW = 148, imgH = (canvas.height / canvas.width) * 148;
-    if (imgH > 210) { imgW = (210 / imgH) * 148; imgH = 210; }
-    pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', (148 - imgW) / 2, 0, imgW, imgH);
+    var pageW = 148, pageH = 210;
+    var imgW = pageW, imgH = (canvas.height / canvas.width) * pageW;
+    if (imgH > pageH) { imgW = (pageH / imgH) * pageW; imgH = pageH; }
+    var x = (pageW - imgW) / 2;
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', x, 0, imgW, imgH);
+
+    // Add clickable link annotation over the footer area
+    var link = getSessionLink();
+    // Footer is at the very bottom of the image — estimate Y position
+    var footerY = imgH - 6; // ~6mm from bottom
+    pdf.link(x, footerY, imgW, 6, { url: link });
+
     var name = document.getElementById('eventName').value.trim() || 'splitbill';
     pdf.save(name.replace(/\s+/g, '-') + '.pdf');
   });

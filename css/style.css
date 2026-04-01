@@ -523,6 +523,16 @@ fieldset { border: none; padding: 0; margin: 0; }
 #scanStatus { font-size: 0.85rem; color: var(--muted); }
 
 .scan-hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 12px; }
+.scan-note {
+  font-size: 0.78rem;
+  color: #f59e0b;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
 .scan-empty { font-size: 0.85rem; color: var(--muted); text-align: center; padding: 16px 0; }
 
 .detected-item {
