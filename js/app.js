@@ -298,7 +298,7 @@ function exportPDF() {
   document.getElementById('watermark').innerHTML =
     'Created using <a href="' + link + '">Split Bill</a> App by realizeddddd'
     + ' \u2022 '
-    + '<a href="' + link + '">' + link + '</a>';
+    + '<a href="' + link + '">View Session</a>';
 
   window.print();
 }

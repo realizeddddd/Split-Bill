@@ -441,27 +441,27 @@ fieldset { border: none; padding: 0; margin: 0; }
 @media print {
   @page {
     size: A5 portrait;
-    margin: 10mm 12mm 14mm;
+    margin: 8mm 10mm 12mm;
   }
 
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-  body { background: #fff; padding: 0; font-size: 9pt; color: #1a1a2e; }
+  body { background: #fff; padding: 0; font-size: 7.5pt; color: #1a1a2e; }
 
   header {
     background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
-    padding: 14px 20px 12px;
-    border-radius: 0 0 12px 12px;
-    margin-bottom: 12px;
+    padding: 7px 12px 6px;
+    border-radius: 0 0 7px 7px;
+    margin-bottom: 7px;
   }
 
   header h1 {
-    font-size: 16pt;
+    font-size: 12pt;
     font-weight: 800;
     color: #fff;
     -webkit-text-fill-color: #fff;
     background: none;
-    margin-bottom: 2px;
+    margin-bottom: 1px;
   }
 
   .event-name-wrap { display: none; }
@@ -469,10 +469,10 @@ fieldset { border: none; padding: 0; margin: 0; }
   #print-event-name {
     display: block !important;
     text-align: center;
-    font-size: 9.5pt;
+    font-size: 7.5pt;
     color: rgba(255,255,255,0.85);
     font-style: italic;
-    margin-top: 2px;
+    margin-top: 1px;
   }
 
   .container > section:not(#print-only) { display: none; }
@@ -483,21 +483,20 @@ fieldset { border: none; padding: 0; margin: 0; }
 
   #print-only {
     display: block;
-    padding: 0 12px 12px;
+    padding: 0;
   }
 
   #print-only h2 { display: none; }
 
-  /* 2-column grid */
   #print-only .pdf-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 10px;
+    gap: 4px;
+    margin-bottom: 5px;
   }
 
   .person-block {
-    border-radius: 10px;
+    border-radius: 6px;
     overflow: hidden;
     break-inside: avoid;
     border: 1px solid #e5e7eb;
@@ -505,13 +504,11 @@ fieldset { border: none; padding: 0; margin: 0; }
 
   .person-name {
     font-weight: 700;
-    font-size: 9pt;
-    padding: 5px 8px;
+    font-size: 7.5pt;
+    padding: 2px 5px;
     color: #fff;
-    letter-spacing: 0.2px;
   }
 
-  /* Cycle through accent colors per person */
   .person-block:nth-child(6n+1) .person-name { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
   .person-block:nth-child(6n+2) .person-name { background: linear-gradient(90deg, #ec4899, #f43f5e); }
   .person-block:nth-child(6n+3) .person-name { background: linear-gradient(90deg, #14b8a6, #06b6d4); }
@@ -519,7 +516,6 @@ fieldset { border: none; padding: 0; margin: 0; }
   .person-block:nth-child(6n+5) .person-name { background: linear-gradient(90deg, #10b981, #84cc16); }
   .person-block:nth-child(6n+0) .person-name { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
 
-  /* Matching light tint for table bg */
   .person-block:nth-child(6n+1) { border-color: #c7d2fe; }
   .person-block:nth-child(6n+2) { border-color: #fbcfe8; }
   .person-block:nth-child(6n+3) { border-color: #99f6e4; }
@@ -530,11 +526,11 @@ fieldset { border: none; padding: 0; margin: 0; }
   #print-only table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 8pt;
+    font-size: 6.5pt;
   }
 
   #print-only td {
-    padding: 3px 7px;
+    padding: 1px 4px;
     border-bottom: 1px solid #f1f5f9;
     color: #374151;
   }
@@ -545,29 +541,24 @@ fieldset { border: none; padding: 0; margin: 0; }
     font-variant-numeric: tabular-nums;
   }
 
-  #print-only .split-note {
-    font-size: 7pt;
-    color: #9ca3af;
-    margin-left: 3px;
-  }
-
+  #print-only .split-note { font-size: 6pt; color: #9ca3af; margin-left: 2px; }
   #print-only .extras-row td { color: #6b7280; font-style: italic; }
 
   #print-only .person-total td {
     font-weight: 700;
-    border-top: 1.5px solid #e5e7eb;
+    border-top: 1px solid #e5e7eb;
     border-bottom: none;
     color: #1a1a2e;
     background: #f8fafc;
+    padding: 2px 4px;
   }
 
   #print-only .empty-cell { color: #9ca3af; font-style: italic; }
 
-  /* Bill totals bar */
   #print-only .pdf-totals {
     display: flex;
     gap: 0;
-    border-radius: 10px;
+    border-radius: 6px;
     overflow: hidden;
     margin-top: 4px;
   }
@@ -575,8 +566,8 @@ fieldset { border: none; padding: 0; margin: 0; }
   #print-only .pdf-totals span {
     flex: 1;
     text-align: center;
-    padding: 6px 4px;
-    font-size: 8pt;
+    padding: 3px 2px;
+    font-size: 6.5pt;
     color: #fff;
     font-weight: 600;
   }
@@ -584,7 +575,7 @@ fieldset { border: none; padding: 0; margin: 0; }
   #print-only .pdf-totals span:nth-child(1) { background: #6366f1; }
   #print-only .pdf-totals span:nth-child(2) { background: #a855f7; }
   #print-only .pdf-totals span:nth-child(3) { background: #ec4899; }
-  #print-only .pdf-totals .pdf-grand { background: #1a1a2e; font-size: 9pt; font-weight: 800; }
+  #print-only .pdf-totals .pdf-grand { background: #1a1a2e; font-size: 7.5pt; font-weight: 800; }
 
   #watermark {
     display: block;
@@ -593,11 +584,11 @@ fieldset { border: none; padding: 0; margin: 0; }
     left: 0;
     right: 0;
     text-align: center;
-    font-size: 7.5pt;
+    font-size: 6pt;
     color: #9ca3af;
     background: #fff;
     border-top: 1px solid #e5e7eb;
-    padding: 4px 12px;
+    padding: 2px 8px;
     pointer-events: none;
     z-index: 9999;
   }
