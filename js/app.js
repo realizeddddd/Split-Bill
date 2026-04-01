@@ -32,7 +32,7 @@ var T = {
     tipAndTax: 'Tip & Tax',
     waTextSaved: 'Split Bill summary image saved! Attach it here.',
     waPdfSaved: 'Split Bill PDF saved! Attach it here.',
-    eventPlaceholder: "Event name (e.g. Dinner at Joe's)",
+    eventPlaceholder: "Event name (e.g. Dinner at Lilis place)",
   },
   id: {
     people: 'Peserta', items: 'Item', tipTax: 'Tip & Pajak', summary: 'Ringkasan',
@@ -54,7 +54,7 @@ var T = {
     scanTitle: '📷 Scan Struk',
     uploadLabel: '📂 Ketuk untuk unggah foto struk',
     scanHint: 'Periksa item yang terdeteksi. Edit atau hapus sebelum menambahkan.',
-    scanNote: '⚠️ Hasil OCR mungkin tidak akurat. Harap periksa dan edit setiap item sebelum menambahkan.',
+    scanNote: '⚠️ Hasil scan OCR mungkin tidak akurat. Mohon periksa dan koreksi setiap item sebelum ditambahkan.',
     scanEmpty: 'Tidak ada item terdeteksi. Coba foto yang lebih jelas atau tambah manual.',
     reading: 'Membaca struk…', readingPct: 'Membaca… ',
     scanFail: '❌ Gagal membaca gambar. Coba foto yang lebih jelas.',
@@ -63,7 +63,7 @@ var T = {
     tipAndTax: 'Tip & Pajak',
     waTextSaved: 'Gambar Split Bill tersimpan! Lampirkan di sini.',
     waPdfSaved: 'PDF Split Bill tersimpan! Lampirkan di sini.',
-    eventPlaceholder: 'Nama acara (mis. Makan Malam di Joe)',
+    eventPlaceholder: 'Nama acara (mis. Makan Malam di tempat Lilis)',
   }
 };
 
