@@ -177,8 +177,8 @@ function exportPDF() {
     return;
   }
 
-  // One simple table per person: item rows + total
-  let html = '';
+  // Person blocks wrapped in grid
+  let html = '<div class="pdf-grid">';
   people.forEach(function(person) {
     const myItems = items.filter(function(item) { return item.assignees.includes(person); });
     const extras = extrasPerPerson[person];
@@ -205,6 +205,7 @@ function exportPDF() {
     html += '<tr class="person-total"><td>Total</td><td class="amt">' + fmt(totals[person]) + '</td></tr>';
     html += '</tbody></table></div>';
   });
+  html += '</div>'; // close pdf-grid
 
   // Bill totals at the bottom
   html += '<div class="pdf-totals">';
