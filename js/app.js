@@ -481,32 +481,44 @@ function captureCard(callback) {
 
 // ── Share ─────────────────────────────────────────────────────────────────────
 
+function shortenUrl(url, callback) {
+  fetch('https://tinyurl.com/api-create.php?url=' + encodeURIComponent(url))
+    .then(function(res) { return res.text(); })
+    .then(function(short) { callback(short.trim()); })
+    .catch(function() { callback(url); }); // fallback to original on error
+}
+
 function shareWhatsAppText() {
   saveSession();
   var s = calcShares();
   var grandTotal = s.subtotal + s.tip + s.tax;
   var eventName = document.getElementById('eventName').value.trim();
-  var link = getSessionLink();
-  var msg = '';
-  if (eventName) msg += '*' + eventName + '*\n';
-  msg += '*' + t('splitBillSummary') + '*\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
-  people.forEach(function(person) {
-    var myItems = items.filter(function(item) { return item.assignees.includes(person); });
-    msg += '\n\ud83d\udc64 *' + person + '* \u2014 ' + fmt(s.totals[person]) + '\n';
-    myItems.forEach(function(item) {
-      var assigned = item.assignees.filter(function(p) { return people.includes(p); });
-      var share = assigned.length ? item.cost / assigned.length : 0;
-      var note = assigned.length > 1 ? ' (\u00f7' + assigned.length + ')' : '';
-      msg += '  \u2022 ' + item.name + note + ': ' + fmt(share) + '\n';
+  var longLink = getSessionLink();
+
+  function buildAndSend(link) {
+    var msg = '';
+    if (eventName) msg += '*' + eventName + '*\n';
+    msg += '*' + t('splitBillSummary') + '*\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
+    people.forEach(function(person) {
+      var myItems = items.filter(function(item) { return item.assignees.includes(person); });
+      msg += '\n\ud83d\udc64 *' + person + '* \u2014 ' + fmt(s.totals[person]) + '\n';
+      myItems.forEach(function(item) {
+        var assigned = item.assignees.filter(function(p) { return people.includes(p); });
+        var share = assigned.length ? item.cost / assigned.length : 0;
+        var note = assigned.length > 1 ? ' (\u00f7' + assigned.length + ')' : '';
+        msg += '  \u2022 ' + item.name + note + ': ' + fmt(share) + '\n';
+      });
+      if (s.extrasPerPerson[person] > 0) msg += '  \u2022 ' + t('tipAndTax') + ': ' + fmt(s.extrasPerPerson[person]) + '\n';
     });
-    if (s.extrasPerPerson[person] > 0) msg += '  \u2022 ' + t('tipAndTax') + ': ' + fmt(s.extrasPerPerson[person]) + '\n';
-  });
-  msg += '\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
-  msg += t('subtotal') + ': ' + fmt(s.subtotal) + '\n';
-  if (s.tip > 0) msg += t('tip') + ': ' + fmt(s.tip) + '\n';
-  if (s.tax > 0) msg += t('tax') + ' (' + s.taxPct + '%): ' + fmt(s.tax) + '\n';
-  msg += '*' + t('total') + ': ' + fmt(grandTotal) + '*\n\n\ud83d\udd17 ' + t('viewSession') + ': ' + link;
-  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+    msg += '\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n';
+    msg += t('subtotal') + ': ' + fmt(s.subtotal) + '\n';
+    if (s.tip > 0) msg += t('tip') + ': ' + fmt(s.tip) + '\n';
+    if (s.tax > 0) msg += t('tax') + ' (' + s.taxPct + '%): ' + fmt(s.tax) + '\n';
+    msg += '*' + t('total') + ': ' + fmt(grandTotal) + '*\n\n\ud83d\udd17 ' + t('viewSession') + ': ' + link;
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  }
+
+  shortenUrl(longLink, buildAndSend);
 }
 
 function shareWhatsAppJPG() {
