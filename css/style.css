@@ -263,30 +263,31 @@ fieldset { border: none; padding: 0; margin: 0; }
   header h1 { color: #000; font-size: 13pt; margin-bottom: 4px; }
   .event-name-wrap { display: none; }
   #print-event-name { text-align: center; font-size: 10pt; color: #374151; margin-bottom: 10px; font-style: italic; }
-  .container > section:not(#summary-section):not(#print-only) { display: none; }
-  #summary-section { box-shadow: none; border: none; padding: 8px 0; }
+  .container > section:not(#print-only) { display: none; }
   .btn-export { display: none; }
-  .summary-list { gap: 4px; }
-  .summary-row { padding: 5px 8px; border-bottom: 1px solid #e5e7eb; border-radius: 0; background: none; }
-  .summary-top .name { font-size: 9pt; }
-  .summary-top .amount { font-size: 9pt; }
-  .summary-items { margin-top: 2px; gap: 1px; }
-  .summary-item { font-size: 8pt; padding: 1px 0; }
-  .totals { margin-top: 6px; padding-top: 6px; gap: 2px; }
-  .totals .line { font-size: 8.5pt; }
-  .totals .line.grand { font-size: 9.5pt; border-top: 1.5px solid #000; padding-top: 4px; }
-  .card h2 { font-size: 10pt; margin-bottom: 6px; }
 
   #print-only {
     display: block;
-    margin-top: 12px;
+    margin-top: 8px;
   }
 
-  #print-only h2 {
-    font-size: 10pt;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #374151;
+  #print-only h2 { display: none; }
+
+  #print-only .person-block {
+    display: inline-block;
+    width: 48%;
+    vertical-align: top;
+    margin-bottom: 8px;
+    margin-right: 1%;
+    break-inside: avoid;
+  }
+
+  #print-only .person-name {
+    font-weight: 700;
+    font-size: 9pt;
+    background: #f3f4f6;
+    padding: 3px 6px;
+    border-left: 3px solid #000;
   }
 
   #print-only table {
@@ -295,62 +296,51 @@ fieldset { border: none; padding: 0; margin: 0; }
     font-size: 8pt;
   }
 
-  #print-only th, #print-only td {
-    text-align: left;
-    padding: 3px 6px;
+  #print-only td {
+    padding: 2px 6px;
     border-bottom: 1px solid #e5e7eb;
   }
 
-  #print-only th {
-    background: #f3f4f6;
-    font-weight: 600;
-    color: #374151;
+  #print-only td.amt {
+    text-align: right;
+    white-space: nowrap;
   }
 
-  #print-only .detail-heading {
-    font-size: 9.5pt;
-    font-weight: 700;
-    margin-top: 10px;
-    margin-bottom: 6px;
-    color: #1a1a2e;
-    border-top: 1.5px solid #e5e7eb;
-    padding-top: 6px;
+  #print-only .split-note {
+    font-size: 7pt;
+    color: #9ca3af;
   }
 
-  #print-only .person-block {
-    margin-bottom: 8px;
-  }
-
-  #print-only .person-name {
-    font-weight: 700;
-    font-size: 8.5pt;
-    background: #f3f4f6;
-    padding: 3px 6px;
-    border-left: 3px solid #4f46e5;
-  }
-
-  #print-only .person-block table {
-    margin-bottom: 0;
-  }
-
-  #print-only .extras-row td {
-    color: #6b7280;
-    font-style: italic;
-  }
+  #print-only .extras-row td { color: #6b7280; font-style: italic; }
 
   #print-only .person-total td {
     font-weight: 700;
     border-top: 1px solid #374151;
+    border-bottom: none;
   }
 
-  #print-only .empty-cell {
-    color: #9ca3af;
-    font-style: italic;
+  #print-only .empty-cell { color: #9ca3af; font-style: italic; }
+
+  #print-only .pdf-totals {
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    font-size: 8pt;
+    color: #6b7280;
+    border-top: 1.5px solid #e5e7eb;
+    padding-top: 6px;
+    margin-top: 8px;
+    clear: both;
+  }
+
+  #print-only .pdf-totals .pdf-grand {
+    font-weight: 700;
+    color: #000;
   }
 
   #watermark {
     display: block;
-    position: fixed;
+    position: sticky;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-35deg);

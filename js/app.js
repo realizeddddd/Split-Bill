@@ -63,7 +63,7 @@ function renderPeople() {
     return;
   }
   el.innerHTML = people.map(p =>
-    `<li class="tag">${p}<button onclick="removePerson('${p}')" aria-label="Remove ${p}">×</button></li>`
+    '<li class="tag">' + p + '<button onclick="removePerson(\'' + p + '\')" aria-label="Remove ' + p + '">×</button></li>'
   ).join('');
 }
 
@@ -73,57 +73,61 @@ function renderItems() {
     el.innerHTML = '<li class="empty">No items added yet.</li>';
     return;
   }
-  el.innerHTML = items.map(item => `
-    <li class="item-row">
-      <span>${item.name} — ${fmt(item.cost)}</span>
-      <div class="assignees" role="group" aria-label="Assign ${item.name} to">
-        ${people.map(p => `
-          <button class="assignee-chip ${item.assignees.includes(p) ? 'active' : ''}"
-            onclick="toggleAssignee(${item.id}, '${p}')"
-            aria-pressed="${item.assignees.includes(p)}">${p}</button>
-        `).join('')}
-        ${!people.length ? '<span style="font-size:0.8rem;color:#9ca3af">Add people first</span>' : ''}
-      </div>
-      <button class="btn-danger" aria-label="Remove ${item.name}" onclick="removeItem(${item.id})">✕</button>
-    </li>
-  `).join('');
+  el.innerHTML = items.map(function(item) {
+    const chips = people.map(function(p) {
+      const active = item.assignees.includes(p) ? ' active' : '';
+      const pressed = item.assignees.includes(p);
+      return '<button class="assignee-chip' + active + '" onclick="toggleAssignee(' + item.id + ', \'' + p + '\')" aria-pressed="' + pressed + '">' + p + '</button>';
+    }).join('');
+    const noPeople = !people.length ? '<span style="font-size:0.8rem;color:#9ca3af">Add people first</span>' : '';
+    return '<li class="item-row">'
+      + '<span>' + item.name + ' \u2014 ' + fmt(item.cost) + '</span>'
+      + '<div class="assignees" role="group" aria-label="Assign ' + item.name + ' to">' + chips + noPeople + '</div>'
+      + '<button class="btn-danger" aria-label="Remove ' + item.name + '" onclick="removeItem(' + item.id + ')">\u2715</button>'
+      + '</li>';
+  }).join('');
 }
 
-function renderSummary() {
-  const subtotal = items.reduce((s, i) => s + i.cost, 0);
+function calcShares() {
+  const subtotal = items.reduce(function(s, i) { return s + i.cost; }, 0);
   const tipAmt = parseFloat(document.getElementById('tipAmt').value) || 0;
   const taxPct = parseFloat(document.getElementById('taxPct').value) || 0;
-  const tip = tipAmt;
   const tax = subtotal * taxPct / 100;
-  const total = subtotal + tip + tax;
+  const extrasTotal = tipAmt + tax;
   const extrasMode = document.getElementById('extrasMode').value;
 
-  const shares = {};
-  people.forEach(p => shares[p] = 0);
-
-  items.forEach(item => {
-    const assigned = item.assignees.filter(p => people.includes(p));
+  const itemShares = {};
+  people.forEach(function(p) { itemShares[p] = 0; });
+  items.forEach(function(item) {
+    const assigned = item.assignees.filter(function(p) { return people.includes(p); });
     if (!assigned.length) return;
-    const share = item.cost / assigned.length;
-    assigned.forEach(p => shares[p] += share);
+    assigned.forEach(function(p) { itemShares[p] += item.cost / assigned.length; });
   });
 
-  const extrasTotal = tip + tax;
+  const extrasPerPerson = {};
+  people.forEach(function(p) { extrasPerPerson[p] = 0; });
   if (extrasTotal > 0 && people.length) {
     if (extrasMode === 'equal') {
-      const perPerson = extrasTotal / people.length;
-      people.forEach(p => shares[p] += perPerson);
+      people.forEach(function(p) { extrasPerPerson[p] = extrasTotal / people.length; });
     } else {
-      const itemTotal = Object.values(shares).reduce((a, b) => a + b, 0);
-      if (itemTotal > 0) {
-        people.forEach(p => shares[p] += extrasTotal * (shares[p] / itemTotal));
-      } else {
-        const perPerson = extrasTotal / people.length;
-        people.forEach(p => shares[p] += perPerson);
-      }
+      const itemTotal = Object.values(itemShares).reduce(function(a, b) { return a + b; }, 0);
+      people.forEach(function(p) {
+        extrasPerPerson[p] = itemTotal > 0
+          ? extrasTotal * (itemShares[p] / itemTotal)
+          : extrasTotal / people.length;
+      });
     }
   }
 
+  const totals = {};
+  people.forEach(function(p) { totals[p] = itemShares[p] + extrasPerPerson[p]; });
+
+  return { subtotal, tip: tipAmt, tax, taxPct, extrasTotal, itemShares, extrasPerPerson, totals };
+}
+
+function renderSummary() {
+  const { subtotal, tip, tax, taxPct, totals, extrasPerPerson } = calcShares();
+  const total = subtotal + tip + tax;
   const summaryEl = document.getElementById('summaryList');
   const totalsEl = document.getElementById('totals');
 
@@ -133,36 +137,29 @@ function renderSummary() {
     return;
   }
 
-  summaryEl.innerHTML = people.map(p => {
-    const myItems = items.filter(item => item.assignees.includes(p));
-    const itemLines = myItems.map(item => {
-      const assigned = item.assignees.filter(x => people.includes(x));
+  summaryEl.innerHTML = people.map(function(p) {
+    const myItems = items.filter(function(item) { return item.assignees.includes(p); });
+    const itemLines = myItems.map(function(item) {
+      const assigned = item.assignees.filter(function(x) { return people.includes(x); });
       const share = assigned.length ? item.cost / assigned.length : 0;
-      return `<li class="summary-item">${item.name} <span>${fmt(share)}</span></li>`;
+      return '<li class="summary-item">' + item.name + ' <span>' + fmt(share) + '</span></li>';
     }).join('');
-    return `
-      <li class="summary-row">
-        <div class="summary-top">
-          <span class="name">${p}</span>
-          <strong class="amount">${fmt(shares[p])}</strong>
-        </div>
-        ${myItems.length ? `<ul class="summary-items">${itemLines}</ul>` : ''}
-      </li>`;
+    return '<li class="summary-row">'
+      + '<div class="summary-top"><span class="name">' + p + '</span><strong class="amount">' + fmt(totals[p]) + '</strong></div>'
+      + (myItems.length ? '<ul class="summary-items">' + itemLines + '</ul>' : '')
+      + '</li>';
   }).join('');
 
-  totalsEl.innerHTML = `
-    <p class="line"><span>Subtotal</span><span>${fmt(subtotal)}</span></p>
-    ${tip > 0 ? `<p class="line"><span>Tip</span><span>${fmt(tip)}</span></p>` : ''}
-    ${tax > 0 ? `<p class="line"><span>Tax (${taxPct}%)</span><span>${fmt(tax)}</span></p>` : ''}
-    <p class="line grand"><span>Total</span><span>${fmt(total)}</span></p>
-  `;
+  totalsEl.innerHTML = '<p class="line"><span>Subtotal</span><span>' + fmt(subtotal) + '</span></p>'
+    + (tip > 0 ? '<p class="line"><span>Tip</span><span>' + fmt(tip) + '</span></p>' : '')
+    + (tax > 0 ? '<p class="line"><span>Tax (' + taxPct + '%)</span><span>' + fmt(tax) + '</span></p>' : '')
+    + '<p class="line grand"><span>Total</span><span>' + fmt(total) + '</span></p>';
 }
 
 function exportPDF() {
   const breakdown = document.getElementById('print-breakdown');
   const eventName = document.getElementById('eventName').value.trim();
 
-  // Show event name under the title for print
   let eventNameEl = document.getElementById('print-event-name');
   if (!eventNameEl) {
     eventNameEl = document.createElement('p');
@@ -171,37 +168,8 @@ function exportPDF() {
   }
   eventNameEl.textContent = eventName;
 
-  const tipAmt = parseFloat(document.getElementById('tipAmt').value) || 0;
-  const taxPct = parseFloat(document.getElementById('taxPct').value) || 0;
-  const subtotal = items.reduce((s, i) => s + i.cost, 0);
-  const tax = subtotal * taxPct / 100;
-  const extrasTotal = tipAmt + tax;
-  const extrasMode = document.getElementById('extrasMode').value;
-
-  // Compute each person's item subtotal
-  const itemShares = {};
-  people.forEach(p => itemShares[p] = 0);
-  items.forEach(item => {
-    const assigned = item.assignees.filter(p => people.includes(p));
-    if (!assigned.length) return;
-    assigned.forEach(p => itemShares[p] += item.cost / assigned.length);
-  });
-
-  // Compute each person's extras share
-  const extrasPerPerson = {};
-  people.forEach(p => extrasPerPerson[p] = 0);
-  if (extrasTotal > 0 && people.length) {
-    if (extrasMode === 'equal') {
-      people.forEach(p => extrasPerPerson[p] = extrasTotal / people.length);
-    } else {
-      const itemTotal = Object.values(itemShares).reduce((a, b) => a + b, 0);
-      people.forEach(p => {
-        extrasPerPerson[p] = itemTotal > 0
-          ? extrasTotal * (itemShares[p] / itemTotal)
-          : extrasTotal / people.length;
-      });
-    }
-  }
+  const { subtotal, tip, tax, taxPct, extrasTotal, itemShares, extrasPerPerson, totals } = calcShares();
+  const grandTotal = subtotal + tip + tax;
 
   if (!items.length) {
     breakdown.innerHTML = '<p>No items.</p>';
@@ -209,59 +177,42 @@ function exportPDF() {
     return;
   }
 
-  // Section 1: all items overview
-  let html = '<table>';
-  html += '<thead><tr><th>Item</th><th>Cost</th><th>Assigned To</th><th>Per Person</th></tr></thead><tbody>';
-  items.forEach(function(item) {
-    const assigned = item.assignees.filter(p => people.includes(p));
-    const perPerson = assigned.length ? fmt(item.cost / assigned.length) : '-';
-    html += '<tr>';
-    html += '<td>' + item.name + '</td>';
-    html += '<td>' + fmt(item.cost) + '</td>';
-    html += '<td>' + (assigned.length ? assigned.join(', ') : '-') + '</td>';
-    html += '<td>' + perPerson + '</td>';
-    html += '</tr>';
+  // One simple table per person: item rows + total
+  let html = '';
+  people.forEach(function(person) {
+    const myItems = items.filter(function(item) { return item.assignees.includes(person); });
+    const extras = extrasPerPerson[person];
+
+    html += '<div class="person-block">';
+    html += '<div class="person-name">' + person + '</div>';
+    html += '<table><tbody>';
+
+    if (!myItems.length) {
+      html += '<tr><td colspan="2" class="empty-cell">No items assigned</td></tr>';
+    } else {
+      myItems.forEach(function(item) {
+        const assigned = item.assignees.filter(function(p) { return people.includes(p); });
+        const share = assigned.length ? item.cost / assigned.length : 0;
+        const splitNote = assigned.length > 1 ? ' <span class="split-note">÷' + assigned.length + '</span>' : '';
+        html += '<tr><td>' + item.name + splitNote + '</td><td class="amt">' + fmt(share) + '</td></tr>';
+      });
+    }
+
+    if (extras > 0) {
+      html += '<tr class="extras-row"><td>Tip &amp; Tax</td><td class="amt">' + fmt(extras) + '</td></tr>';
+    }
+
+    html += '<tr class="person-total"><td>Total</td><td class="amt">' + fmt(totals[person]) + '</td></tr>';
+    html += '</tbody></table></div>';
   });
-  html += '</tbody></table>';
 
-  // Section 2: per-person itemized detail
-  if (people.length) {
-    html += '<h3 class="detail-heading">Per-Person Detail</h3>';
-
-    people.forEach(function(person) {
-      const myItems = items.filter(item => item.assignees.includes(person));
-      const extras = extrasPerPerson[person];
-      const grandTotal = itemShares[person] + extras;
-
-      html += '<div class="person-block">';
-      html += '<div class="person-name">' + person + '</div>';
-      html += '<table>';
-      html += '<thead><tr><th>Item</th><th>Total Cost</th><th>Shared by</th><th>Your Share</th></tr></thead>';
-      html += '<tbody>';
-
-      if (myItems.length === 0) {
-        html += '<tr><td colspan="4" class="empty-cell">No items assigned</td></tr>';
-      } else {
-        myItems.forEach(function(item) {
-          const assigned = item.assignees.filter(p => people.includes(p));
-          const share = assigned.length ? item.cost / assigned.length : 0;
-          html += '<tr>';
-          html += '<td>' + item.name + '</td>';
-          html += '<td>' + fmt(item.cost) + '</td>';
-          html += '<td>' + assigned.length + '</td>';
-          html += '<td>' + fmt(share) + '</td>';
-          html += '</tr>';
-        });
-      }
-
-      if (extras > 0) {
-        html += '<tr class="extras-row"><td>Tip &amp; Tax share</td><td></td><td></td><td>' + fmt(extras) + '</td></tr>';
-      }
-
-      html += '<tr class="person-total"><td colspan="3">Total</td><td>' + fmt(grandTotal) + '</td></tr>';
-      html += '</tbody></table></div>';
-    });
-  }
+  // Bill totals at the bottom
+  html += '<div class="pdf-totals">';
+  html += '<span>Subtotal: ' + fmt(subtotal) + '</span>';
+  if (tip > 0) html += '<span>Tip: ' + fmt(tip) + '</span>';
+  if (tax > 0) html += '<span>Tax (' + taxPct + '%): ' + fmt(tax) + '</span>';
+  html += '<span class="pdf-grand">Total: ' + fmt(grandTotal) + '</span>';
+  html += '</div>';
 
   breakdown.innerHTML = html;
   window.print();
