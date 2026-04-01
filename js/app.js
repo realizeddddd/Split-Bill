@@ -166,7 +166,7 @@ function exportPDF() {
     eventNameEl.id = 'print-event-name';
     document.querySelector('header').appendChild(eventNameEl);
   }
-  eventNameEl.textContent = eventName;
+  eventNameEl.textContent = eventName || 'Split Bill';
 
   const { subtotal, tip, tax, taxPct, extrasTotal, itemShares, extrasPerPerson, totals } = calcShares();
   const grandTotal = subtotal + tip + tax;
@@ -220,3 +220,16 @@ function exportPDF() {
 }
 
 render();
+
+// Theme toggle
+(function() {
+  const btn = document.getElementById('themeToggle');
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light') { document.body.classList.add('light'); btn.textContent = '☀️'; }
+
+  btn.addEventListener('click', function() {
+    const isLight = document.body.classList.toggle('light');
+    btn.textContent = isLight ? '☀️' : '🌙';
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  });
+})();

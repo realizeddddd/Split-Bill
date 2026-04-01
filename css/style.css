@@ -17,6 +17,15 @@
   --muted: #94a3b8;
 }
 
+body.light {
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --surface2: #f9fafb;
+  --border: rgba(0,0,0,0.08);
+  --text: #1a1a2e;
+  --muted: #6b7280;
+}
+
 body {
   font-family: system-ui, sans-serif;
   background: var(--bg);
@@ -30,6 +39,28 @@ header {
   text-align: center;
   margin-bottom: 28px;
 }
+
+.header-top {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+.btn-theme {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1rem;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-theme:hover { transform: rotate(20deg); }
 
 h1 {
   font-size: 2rem;
@@ -111,7 +142,7 @@ input:focus, select:focus {
   background: rgba(99,102,241,0.1);
 }
 
-select option { background: #1a1a2e; color: var(--text); }
+select option { background: var(--surface); color: var(--text); }
 
 /* Buttons */
 button {
@@ -313,6 +344,7 @@ fieldset { border: none; padding: 0; margin: 0; }
   .event-name-wrap { display: none; }
 
   #print-event-name {
+    display: block !important;
     text-align: center;
     font-size: 9.5pt;
     color: rgba(255,255,255,0.85);
