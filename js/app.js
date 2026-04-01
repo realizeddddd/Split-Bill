@@ -288,12 +288,15 @@ function exportPDF() {
   html += '<span class="pdf-grand">Total: ' + fmt(grandTotal) + '</span>';
   html += '</div>';
 
-  html += '<div class="pdf-footer">'
-    + 'Created using <a href="' + getSessionLink() + '" class="pdf-session-link">Split Bill</a> App by realizeddddd'
-    + ' &nbsp;|&nbsp; Session: <a href="' + getSessionLink() + '" class="pdf-session-link">' + getSessionLink() + '</a>'
-    + '</div>';
-
   breakdown.innerHTML = html;
+
+  // Populate watermark with session link (shown at bottom of every print page)
+  var link = getSessionLink();
+  document.getElementById('watermark').innerHTML =
+    'Created using <a href="' + link + '">Split Bill</a> App by realizeddddd'
+    + ' \u2022 '
+    + '<a href="' + link + '">' + link + '</a>';
+
   window.print();
 }
 

@@ -536,32 +536,26 @@ fieldset { border: none; padding: 0; margin: 0; }
   #print-only .pdf-totals span:nth-child(3) { background: #ec4899; }
   #print-only .pdf-totals .pdf-grand { background: #1a1a2e; font-size: 9pt; font-weight: 800; }
 
-  #print-only .pdf-footer {
-    text-align: center;
-    font-size: 7.5pt;
-    color: #9ca3af;
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px solid #e5e7eb;
-  }
-
-  #print-only .pdf-session-link {
-    color: #6366f1;
-    text-decoration: underline;
-  }
-
   #watermark {
     display: block;
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-35deg);
-    font-size: 1.4rem;
-    font-weight: 700;
-    color: rgba(0,0,0,0.05);
-    white-space: nowrap;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 7.5pt;
+    color: #9ca3af;
+    background: #fff;
+    border-top: 1px solid #e5e7eb;
+    padding: 4px 12px;
     pointer-events: none;
     z-index: 9999;
+  }
+
+  #watermark a {
+    color: #6366f1;
+    text-decoration: underline;
+    pointer-events: auto;
   }
 }
 
