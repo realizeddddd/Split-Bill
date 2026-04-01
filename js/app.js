@@ -17,7 +17,7 @@ var T = {
     shareWa: '💬 Share WhatsApp ▾',
     shareText: '📝 Share as Text', shareJPG: '🖼️ Share as JPG', sharePDF: '📄 Share as PDF',
     splitBillSummary: 'Split Bill Summary',
-    viewSession: 'View Session',
+    viewSession: 'View on Web',
     createdUsing: 'Created using',
     appBy: 'App by realizeddddd',
     scanTitle: '📷 Scan Receipt',
@@ -48,7 +48,7 @@ var T = {
     shareWa: '💬 Bagikan WhatsApp ▾',
     shareText: '📝 Bagikan sebagai Teks', shareJPG: '🖼️ Bagikan sebagai JPG', sharePDF: '📄 Bagikan sebagai PDF',
     splitBillSummary: 'Ringkasan Split Bill',
-    viewSession: 'Lihat Sesi',
+    viewSession: 'Lihat di Web',
     createdUsing: 'Dibuat menggunakan',
     appBy: 'App oleh realizeddddd',
     scanTitle: '📷 Scan Struk',
@@ -71,10 +71,10 @@ function t(key) { return (T[LANG] && T[LANG][key]) || T.en[key] || key; }
 
 function applyLang() {
   // Static labels
-  document.getElementById('people-heading').textContent = t('people');
-  document.getElementById('items-heading').textContent = t('items');
-  document.getElementById('extras-heading').innerHTML = t('tipTax');
-  document.getElementById('summary-heading').textContent = t('summary');
+  document.getElementById('people-heading').innerHTML = '<span class="card-icon">👥</span>' + t('people');
+  document.getElementById('items-heading').innerHTML = '<span class="card-icon">🧾</span>' + t('items');
+  document.getElementById('extras-heading').innerHTML = '<span class="card-icon">✨</span>' + t('tipTax');
+  document.getElementById('summary-heading').innerHTML = '<span class="card-icon">📊</span>' + t('summary');
   document.getElementById('section-sub-items').textContent = t('enterManually');
   document.getElementById('personInput').placeholder = t('addPerson');
   document.getElementById('itemName').placeholder = t('addItem');

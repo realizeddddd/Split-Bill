@@ -13,6 +13,7 @@
       <button class="btn-theme" id="themeToggle" aria-label="Toggle light/dark mode">🌙</button>
     </div>
     <h1>Split Bill</h1>
+    <p class="header-sub">Split smarter, together</p>
     <div class="event-name-wrap">
       <input id="eventName" type="text" placeholder="Event name" autocomplete="off" />
     </div>
@@ -22,7 +23,7 @@
 
     <!-- People -->
     <section class="card" aria-labelledby="people-heading">
-      <h2 id="people-heading">People</h2>
+      <h2 id="people-heading"><span class="card-icon">👥</span>People</h2>
       <form class="row" onsubmit="addPerson(); return false;">
         <label for="personInput" class="sr-only">Name</label>
         <input id="personInput" type="text" placeholder="Name" autocomplete="off" />
@@ -33,7 +34,7 @@
 
     <!-- Items -->
     <section class="card" aria-labelledby="items-heading">
-      <h2 id="items-heading">Items</h2>
+      <h2 id="items-heading"><span class="card-icon">🧾</span>Items</h2>
       <p class="section-sub" id="section-sub-items">Enter item(s) manually</p>
       <form class="row" onsubmit="addItem(); return false;">
         <label for="itemName" class="sr-only">Item name</label>
@@ -49,7 +50,7 @@
 
     <!-- Tip & Tax -->
     <section class="card" aria-labelledby="extras-heading">
-      <h2 id="extras-heading">Tip &amp; Tax</h2>
+      <h2 id="extras-heading"><span class="card-icon">✨</span>Tip &amp; Tax</h2>
       <fieldset class="extras">
         <legend class="sr-only">Tip, tax and split options</legend>
         <label id="label-tip" for="tipAmt">Tip <input id="tipAmt" type="number" value="0" min="0" step="1" oninput="render()" /></label>
@@ -65,7 +66,7 @@
 
     <!-- Summary -->
     <section class="card" id="summary-section" aria-labelledby="summary-heading">
-      <h2 id="summary-heading">Summary</h2>
+      <h2 id="summary-heading"><span class="card-icon">📊</span>Summary</h2>
       <ul class="summary-list" id="summaryList" aria-label="Per-person totals"></ul>
       <footer class="totals" id="totals" aria-label="Bill totals"></footer>
       <div class="share-buttons">
