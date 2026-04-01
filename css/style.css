@@ -26,6 +26,28 @@ body.light {
   --muted: #6b7280;
 }
 
+body.light .card {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+body.light input,
+body.light select {
+  background: #fff;
+  color: #1a1a2e;
+}
+
+body.light .item-row {
+  background: #f9fafb;
+}
+
+body.light .summary-row {
+  background: #f9fafb;
+}
+
+body.light .assignee-chip {
+  color: #374151;
+}
+
 body {
   font-family: system-ui, sans-serif;
   background: var(--bg);
@@ -52,13 +74,15 @@ header {
   border-radius: 50%;
   width: 36px;
   height: 36px;
-  font-size: 1rem;
+  font-size: 1.1rem;
   padding: 0;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background 0.2s, transform 0.2s;
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 .btn-theme:hover { transform: rotate(20deg); }
 
@@ -354,6 +378,7 @@ fieldset { border: none; padding: 0; margin: 0; }
 
   .container > section:not(#print-only) { display: none; }
   .btn-export { display: none; }
+  .btn-theme { display: none; }
 
   #print-only {
     display: block;
