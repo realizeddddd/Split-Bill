@@ -97,7 +97,7 @@ function applyLang() {
   document.getElementById('scan-back-btn').textContent = t('back');
   document.getElementById('scan-confirm-btn').textContent = t('addAll');
   // Lang toggle button
-  document.getElementById('langToggle').textContent = LANG === 'en' ? '🇮🇩 ID' : '🇬🇧 EN';
+  document.getElementById('langToggle').textContent = LANG === 'en' ? 'ID' : 'EN';
   render();
 }
 
