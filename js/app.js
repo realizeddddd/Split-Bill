@@ -478,16 +478,7 @@ function captureCard(callback) {
 
 // ── Share ─────────────────────────────────────────────────────────────────────
 
-function toggleWaMenu() { document.getElementById('waMenu').classList.toggle('open'); }
-
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.wa-dropdown')) {
-    var m = document.getElementById('waMenu'); if (m) m.classList.remove('open');
-  }
-});
-
 function shareWhatsAppText() {
-  document.getElementById('waMenu').classList.remove('open');
   saveSession();
   var s = calcShares();
   var grandTotal = s.subtotal + s.tip + s.tax;
@@ -516,7 +507,6 @@ function shareWhatsAppText() {
 }
 
 function shareWhatsAppJPG() {
-  document.getElementById('waMenu').classList.remove('open');
   saveSession();
   captureCard(function(canvas) {
     var a = document.createElement('a');
@@ -524,14 +514,10 @@ function shareWhatsAppJPG() {
     a.download = name.replace(/\s+/g, '-') + '.jpg';
     a.href = canvas.toDataURL('image/jpeg', 0.92);
     a.click();
-    var link = getSessionLink();
-    var msg = (name !== 'splitbill' ? '*' + name + '*\n' : '') + t('waTextSaved') + '\n\n\ud83d\udd17 ' + t('viewSession') + ': ' + link;
-    setTimeout(function() { window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'); }, 800);
   });
 }
 
 function shareWhatsAppPDF() {
-  document.getElementById('waMenu').classList.remove('open');
   saveSession();
   captureCard(function(canvas) {
     var pdf = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
@@ -540,9 +526,6 @@ function shareWhatsAppPDF() {
     pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', (148 - imgW) / 2, 0, imgW, imgH);
     var name = document.getElementById('eventName').value.trim() || 'splitbill';
     pdf.save(name.replace(/\s+/g, '-') + '.pdf');
-    var link = getSessionLink();
-    var msg = (name !== 'splitbill' ? '*' + name + '*\n' : '') + t('waPdfSaved') + '\n\n\ud83d\udd17 ' + t('viewSession') + ': ' + link;
-    setTimeout(function() { window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank'); }, 800);
   });
 }
 
