@@ -388,7 +388,31 @@ fieldset { border: none; padding: 0; margin: 0; }
 }
 .btn-copy:hover { opacity: 0.85; }
 
-/* Scan button */
+/* Share buttons */
+.share-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.btn-share {
+  padding: 10px 6px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s;
+  text-align: center;
+  line-height: 1.3;
+}
+.btn-share:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.btn-wa-text { background: linear-gradient(135deg, #25d366, #128c7e); box-shadow: 0 3px 12px rgba(37,211,102,0.3); }
+.btn-wa-jpg  { background: linear-gradient(135deg, #6366f1, #a855f7); box-shadow: 0 3px 12px rgba(99,102,241,0.3); }
+.btn-wa-pdf  { background: linear-gradient(135deg, #f59e0b, #ef4444); box-shadow: 0 3px 12px rgba(245,158,11,0.3); }
 .btn-scan {
   margin-top: 10px;
   width: 100%;
@@ -554,49 +578,7 @@ fieldset { border: none; padding: 0; margin: 0; }
 }
 .btn-wa:hover { opacity: 0.88; transform: translateY(-1px); }
 
-.wa-dropdown {
-  position: relative;
-  margin-top: 16px;
-}
-
-.wa-dropdown .wa-toggle {
-  margin-top: 0;
-  width: 100%;
-}
-
-.wa-menu {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 0;
-  right: 0;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  z-index: 100;
-}
-
-.wa-menu.open { display: block; }
-
-.wa-menu button {
-  display: block;
-  width: 100%;
-  padding: 11px 16px;
-  text-align: left;
-  background: none;
-  border: none;
-  border-radius: 0;
-  color: var(--text);
-  font-size: 0.88rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-
-.wa-menu button:hover { background: rgba(255,255,255,0.06); }
-.wa-menu button + button { border-top: 1px solid var(--border); }
+.wa-dropdown { display: none; }
 
 /* ── Print / PDF ── */
 #print-only { display: none; }
@@ -644,7 +626,7 @@ fieldset { border: none; padding: 0; margin: 0; }
   .btn-export { display: none; }
   .btn-theme { display: none; }
   .session-link { display: none; }
-  .wa-dropdown { display: none; }
+  .share-buttons { display: none; }
 
   #print-only {
     display: block;

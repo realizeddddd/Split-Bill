@@ -68,13 +68,10 @@
       <h2 id="summary-heading">Summary</h2>
       <ul class="summary-list" id="summaryList" aria-label="Per-person totals"></ul>
       <footer class="totals" id="totals" aria-label="Bill totals"></footer>
-      <div class="wa-dropdown">
-        <button class="btn-export btn-wa wa-toggle" id="wa-toggle-btn" onclick="toggleWaMenu()">💬 Share WhatsApp ▾</button>
-        <div class="wa-menu" id="waMenu">
-          <button id="wa-text-btn" onclick="shareWhatsAppText()">📝 Share as Text</button>
-          <button id="wa-jpg-btn" onclick="shareWhatsAppJPG()">🖼️ Share as JPG</button>
-          <button id="wa-pdf-btn" onclick="shareWhatsAppPDF()">📄 Share as PDF</button>
-        </div>
+      <div class="share-buttons">
+        <button class="btn-share btn-wa-text" id="wa-text-btn" onclick="shareWhatsAppText()">📝 Share as Text</button>
+        <button class="btn-share btn-wa-jpg" id="wa-jpg-btn" onclick="shareWhatsAppJPG()">🖼️ Share as JPG</button>
+        <button class="btn-share btn-wa-pdf" id="wa-pdf-btn" onclick="shareWhatsAppPDF()">📄 Share as PDF</button>
       </div>
     </section>
 

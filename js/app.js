@@ -87,7 +87,6 @@ function applyLang() {
   document.getElementById('label-extras').childNodes[0].textContent = t('splitExtras') + ' ';
   document.getElementById('extrasMode').options[0].text = t('equally');
   document.getElementById('extrasMode').options[1].text = t('proportionally');
-  document.getElementById('wa-toggle-btn').textContent = t('shareWa');
   document.getElementById('wa-text-btn').textContent = t('shareText');
   document.getElementById('wa-jpg-btn').textContent = t('shareJPG');
   document.getElementById('wa-pdf-btn').textContent = t('sharePDF');
@@ -371,33 +370,110 @@ function buildCardHTML() {
 
 function captureCard(callback) {
   buildCardHTML();
-  var target = document.getElementById('print-only');
-  target.style.cssText = 'display:block;position:fixed;top:-9999px;left:0;width:559px;background:#fff;padding:20px;z-index:-1;';
 
-  var wm = document.getElementById('watermark');
-  wm.style.cssText = 'display:block;position:static;border-top:1px solid #e5e7eb;padding:6px 0 0;margin-top:8px;font-size:8px;color:#9ca3af;';
-  target.appendChild(wm);
+  var eventName = document.getElementById('eventName').value.trim() || 'Split Bill';
+  var s = calcShares();
+  var grandTotal = s.subtotal + s.tip + s.tax;
+  var link = getSessionLink();
 
-  var headerClone = document.querySelector('header').cloneNode(true);
-  headerClone.style.cssText = 'background:linear-gradient(135deg,#6366f1,#a855f7,#ec4899);padding:10px 14px 8px;border-radius:0 0 8px 8px;margin-bottom:10px;';
-  headerClone.querySelector('h1').style.cssText = 'font-size:16px;font-weight:800;color:#fff;margin:0 0 2px;background:none;-webkit-text-fill-color:#fff;';
-  var pne = headerClone.querySelector('#print-event-name');
-  if (pne) pne.style.cssText = 'display:block;text-align:center;font-size:11px;color:rgba(255,255,255,0.85);font-style:italic;margin:0;';
-  ['#print-event-name','#print-event-name','#langToggle','.header-top','.event-name-wrap'].forEach(function(sel) {
-    var el = headerClone.querySelector(sel); if (el && sel !== '#print-event-name') el.remove();
+  // Accent colors cycling
+  var accents = [
+    ['#6366f1','#8b5cf6','#c7d2fe'],
+    ['#ec4899','#f43f5e','#fbcfe8'],
+    ['#14b8a6','#06b6d4','#99f6e4'],
+    ['#f59e0b','#f97316','#fde68a'],
+    ['#10b981','#84cc16','#bbf7d0'],
+    ['#8b5cf6','#ec4899','#e9d5ff']
+  ];
+
+  // Build self-contained HTML string
+  var cardHTML = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    + '<style>'
+    + '*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif;}'
+    + 'body{background:#fff;width:559px;padding:0;}'
+    + '.hdr{background:linear-gradient(135deg,#6366f1,#a855f7,#ec4899);padding:14px 18px 12px;border-radius:0 0 10px 10px;margin-bottom:12px;text-align:center;}'
+    + '.hdr h1{font-size:20px;font-weight:800;color:#fff;margin-bottom:3px;}'
+    + '.hdr p{font-size:12px;color:rgba(255,255,255,0.85);font-style:italic;}'
+    + '.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px;margin-bottom:8px;}'
+    + '.block{border-radius:8px;overflow:hidden;border:1px solid #e5e7eb;}'
+    + '.pname{font-size:11px;font-weight:700;padding:5px 8px;color:#fff;}'
+    + 'table{width:100%;border-collapse:collapse;}'
+    + 'td{font-size:10px;padding:3px 7px;border-bottom:1px solid #f1f5f9;color:#374151;}'
+    + 'td.amt{text-align:right;white-space:nowrap;font-weight:500;}'
+    + 'td.note{font-size:8px;color:#9ca3af;}'
+    + '.extras td{color:#6b7280;font-style:italic;}'
+    + '.ptotal td{font-weight:700;border-top:1.5px solid #e5e7eb;border-bottom:none;background:#f8fafc;color:#1a1a2e;}'
+    + '.totals-bar{display:flex;margin:0 12px 8px;border-radius:8px;overflow:hidden;}'
+    + '.totals-bar span{flex:1;text-align:center;padding:5px 4px;font-size:9px;color:#fff;font-weight:600;}'
+    + '.footer{text-align:center;font-size:8px;color:#9ca3af;border-top:1px solid #e5e7eb;padding:6px 12px 10px;margin-top:4px;}'
+    + '.footer a{color:#6366f1;}'
+    + '</style></head><body>'
+    + '<div class="hdr"><h1>Split Bill</h1><p>' + eventName + '</p></div>'
+    + '<div class="grid">';
+
+  people.forEach(function(person, idx) {
+    var ac = accents[idx % accents.length];
+    var myItems = items.filter(function(item) { return item.assignees.includes(person); });
+    var extras = s.extrasPerPerson[person];
+
+    cardHTML += '<div class="block" style="border-color:' + ac[2] + '">'
+      + '<div class="pname" style="background:linear-gradient(90deg,' + ac[0] + ',' + ac[1] + ')">' + person + '</div>'
+      + '<table>';
+
+    if (!myItems.length) {
+      cardHTML += '<tr><td colspan="2" style="color:#9ca3af;font-style:italic">' + t('noItemsAssigned') + '</td></tr>';
+    } else {
+      myItems.forEach(function(item) {
+        var assigned = item.assignees.filter(function(p) { return people.includes(p); });
+        var share = assigned.length ? item.cost / assigned.length : 0;
+        var note = assigned.length > 1 ? ' <span style="font-size:8px;color:#9ca3af">\u00f7' + assigned.length + '</span>' : '';
+        cardHTML += '<tr><td>' + item.name + note + '</td><td class="amt">' + fmt(share) + '</td></tr>';
+      });
+    }
+
+    if (extras > 0) {
+      cardHTML += '<tr class="extras"><td>' + t('tipAndTax') + '</td><td class="amt">' + fmt(extras) + '</td></tr>';
+    }
+    cardHTML += '<tr class="ptotal"><td>' + t('total') + '</td><td class="amt">' + fmt(s.totals[person]) + '</td></tr>';
+    cardHTML += '</table></div>';
   });
-  var ht = headerClone.querySelector('.header-top'); if (ht) ht.remove();
-  var ew = headerClone.querySelector('.event-name-wrap'); if (ew) ew.remove();
-  target.insertBefore(headerClone, target.firstChild);
 
-  html2canvas(target, { scale: 2, useCORS: true, backgroundColor: '#ffffff', width: target.offsetWidth, height: target.scrollHeight })
-    .then(function(canvas) {
-      target.style.cssText = '';
-      wm.style.cssText = '';
-      target.removeChild(headerClone);
-      document.querySelector('main').appendChild(wm);
+  cardHTML += '</div>';
+
+  // Totals bar
+  cardHTML += '<div class="totals-bar">'
+    + '<span style="background:#6366f1">' + t('subtotal') + ': ' + fmt(s.subtotal) + '</span>';
+  if (s.tip > 0) cardHTML += '<span style="background:#a855f7">' + t('tip') + ': ' + fmt(s.tip) + '</span>';
+  if (s.tax > 0) cardHTML += '<span style="background:#ec4899">' + t('tax') + ' ' + s.taxPct + '%: ' + fmt(s.tax) + '</span>';
+  cardHTML += '<span style="background:#1a1a2e;font-size:10px;font-weight:800">' + t('total') + ': ' + fmt(grandTotal) + '</span>'
+    + '</div>';
+
+  cardHTML += '<div class="footer">'
+    + t('createdUsing') + ' <a href="' + link + '">Split Bill</a> ' + t('appBy')
+    + ' &bull; <a href="' + link + '">' + t('viewSession') + '</a>'
+    + '</div></body></html>';
+
+  // Render in hidden iframe, then capture
+  var iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:0;width:559px;height:800px;border:none;visibility:hidden;';
+  document.body.appendChild(iframe);
+  iframe.contentDocument.open();
+  iframe.contentDocument.write(cardHTML);
+  iframe.contentDocument.close();
+
+  setTimeout(function() {
+    html2canvas(iframe.contentDocument.body, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      width: 559,
+      height: iframe.contentDocument.body.scrollHeight,
+      windowWidth: 559
+    }).then(function(canvas) {
+      document.body.removeChild(iframe);
       callback(canvas);
     });
+  }, 300);
 }
 
 // ── Share ─────────────────────────────────────────────────────────────────────
