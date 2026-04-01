@@ -1,5 +1,25 @@
 // ── Session (URL-encoded state — works across all devices) ───────────────────
 
+function encodeState(obj) {
+  try {
+    var json = JSON.stringify(obj);
+    // Use TextEncoder for proper Unicode support
+    var bytes = new TextEncoder().encode(json);
+    var binary = String.fromCharCode.apply(null, bytes);
+    return btoa(binary);
+  } catch(e) { return null; }
+}
+
+function decodeState(hash) {
+  try {
+    var binary = atob(hash);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    var json = new TextDecoder().decode(bytes);
+    return JSON.parse(json);
+  } catch(e) { return null; }
+}
+
 function saveSession() {
   var state = {
     people: people,
@@ -10,32 +30,31 @@ function saveSession() {
     taxPct: document.getElementById('taxPct').value,
     extrasMode: document.getElementById('extrasMode').value,
   };
-  try {
-    var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
-    history.replaceState(null, '', '#' + encoded);
-  } catch(e) {}
+  var encoded = encodeState(state);
+  if (encoded) history.replaceState(null, '', '#' + encoded);
 }
 
 function loadSession() {
   var hash = window.location.hash.slice(1);
   if (!hash) return;
-  try {
-    var state = JSON.parse(decodeURIComponent(escape(atob(hash))));
-    people = state.people || [];
-    items = state.items || [];
-    if (state.eventName) document.getElementById('eventName').value = state.eventName;
-    if (state.currency) document.getElementById('currency').value = state.currency;
-    if (state.tipAmt) document.getElementById('tipAmt').value = state.tipAmt;
-    if (state.taxPct) document.getElementById('taxPct').value = state.taxPct;
-    if (state.extrasMode) document.getElementById('extrasMode').value = state.extrasMode;
-  } catch(e) {
-    // Hash isn't a valid session, ignore
+  var state = decodeState(hash);
+  if (!state) {
     history.replaceState(null, '', window.location.pathname);
+    return;
   }
+  people = state.people || [];
+  items = state.items || [];
+  if (state.eventName !== undefined) document.getElementById('eventName').value = state.eventName;
+  if (state.currency) document.getElementById('currency').value = state.currency;
+  if (state.tipAmt !== undefined) document.getElementById('tipAmt').value = state.tipAmt;
+  if (state.taxPct !== undefined) document.getElementById('taxPct').value = state.taxPct;
+  if (state.extrasMode) document.getElementById('extrasMode').value = state.extrasMode;
 }
 
 function getSessionLink() {
-  return window.location.href;
+  // Save first so the URL hash is up to date, then return it
+  saveSession();
+  return window.location.origin + window.location.pathname + window.location.hash;
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
