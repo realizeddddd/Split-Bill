@@ -221,15 +221,53 @@ function exportPDF() {
 
 render();
 
+function shareWhatsApp() {
+  const { subtotal, tip, tax, taxPct, totals, extrasPerPerson } = calcShares();
+  const grandTotal = subtotal + tip + tax;
+  const eventName = document.getElementById('eventName').value.trim();
+
+  let msg = '';
+  if (eventName) msg += '*' + eventName + '*\n';
+  msg += '*Split Bill Summary*\n';
+  msg += '─────────────────\n';
+
+  people.forEach(function(person) {
+    const myItems = items.filter(function(item) { return item.assignees.includes(person); });
+    msg += '\n👤 *' + person + '* — ' + fmt(totals[person]) + '\n';
+    myItems.forEach(function(item) {
+      const assigned = item.assignees.filter(function(p) { return people.includes(p); });
+      const share = assigned.length ? item.cost / assigned.length : 0;
+      const note = assigned.length > 1 ? ' (\u00f7' + assigned.length + ')' : '';
+      msg += '  \u2022 ' + item.name + note + ': ' + fmt(share) + '\n';
+    });
+    if (extrasPerPerson[person] > 0) {
+      msg += '  \u2022 Tip & Tax: ' + fmt(extrasPerPerson[person]) + '\n';
+    }
+  });
+
+  msg += '\n─────────────────\n';
+  msg += 'Subtotal: ' + fmt(subtotal) + '\n';
+  if (tip > 0) msg += 'Tip: ' + fmt(tip) + '\n';
+  if (tax > 0) msg += 'Tax (' + taxPct + '%): ' + fmt(tax) + '\n';
+  msg += '*Total: ' + fmt(grandTotal) + '*';
+
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
 // Theme toggle
 (function() {
   const btn = document.getElementById('themeToggle');
   const saved = localStorage.getItem('theme');
-  if (saved === 'light') { document.body.classList.add('light'); btn.textContent = '☀️'; }
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  // Default to dark unless saved as light
+  const isLight = saved === 'light';
+  if (isLight) document.body.classList.add('light');
+  btn.textContent = isLight ? '☀️' : '🌙';
 
   btn.addEventListener('click', function() {
-    const isLight = document.body.classList.toggle('light');
-    btn.textContent = isLight ? '☀️' : '🌙';
-    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    const nowLight = document.body.classList.toggle('light');
+    btn.textContent = nowLight ? '☀️' : '🌙';
+    localStorage.setItem('theme', nowLight ? 'light' : 'dark');
   });
 })();

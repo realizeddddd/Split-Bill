@@ -326,7 +326,6 @@ fieldset { border: none; padding: 0; margin: 0; }
   margin-top: 16px;
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, var(--teal), var(--green));
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -334,10 +333,20 @@ fieldset { border: none; padding: 0; margin: 0; }
   font-weight: 700;
   cursor: pointer;
   letter-spacing: 0.3px;
-  box-shadow: 0 4px 16px rgba(20,184,166,0.35);
   transition: all 0.2s;
 }
-.btn-export:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.btn-pdf {
+  background: linear-gradient(135deg, var(--teal), var(--green));
+  box-shadow: 0 4px 16px rgba(20,184,166,0.35);
+}
+.btn-pdf:hover { opacity: 0.88; transform: translateY(-1px); }
+
+.btn-wa {
+  background: linear-gradient(135deg, #25d366, #128c7e);
+  box-shadow: 0 4px 16px rgba(37,211,102,0.35);
+}
+.btn-wa:hover { opacity: 0.88; transform: translateY(-1px); }
 
 /* ── Print / PDF ── */
 #print-only { display: none; }
