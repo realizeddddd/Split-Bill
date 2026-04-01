@@ -1,45 +1,26 @@
-// ── Session ──────────────────────────────────────────────────────────────────
-
-function genId() {
-  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
-}
-
-function getSessionId() {
-  // Check URL hash first (shared link)
-  const hash = window.location.hash.slice(1);
-  if (hash) return hash;
-  // Otherwise use or create a session id in localStorage
-  let id = localStorage.getItem('currentSession');
-  if (!id) {
-    id = genId();
-    localStorage.setItem('currentSession', id);
-    window.location.hash = id;
-  }
-  return id;
-}
-
-let SESSION_ID = getSessionId();
-// Keep URL hash in sync
-window.location.hash = SESSION_ID;
+// ── Session (URL-encoded state — works across all devices) ───────────────────
 
 function saveSession() {
-  const state = {
-    people,
-    items,
+  var state = {
+    people: people,
+    items: items,
     eventName: document.getElementById('eventName').value,
     currency: document.getElementById('currency').value,
     tipAmt: document.getElementById('tipAmt').value,
     taxPct: document.getElementById('taxPct').value,
     extrasMode: document.getElementById('extrasMode').value,
   };
-  localStorage.setItem('session_' + SESSION_ID, JSON.stringify(state));
+  try {
+    var encoded = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+    history.replaceState(null, '', '#' + encoded);
+  } catch(e) {}
 }
 
 function loadSession() {
-  const raw = localStorage.getItem('session_' + SESSION_ID);
-  if (!raw) return;
+  var hash = window.location.hash.slice(1);
+  if (!hash) return;
   try {
-    const state = JSON.parse(raw);
+    var state = JSON.parse(decodeURIComponent(escape(atob(hash))));
     people = state.people || [];
     items = state.items || [];
     if (state.eventName) document.getElementById('eventName').value = state.eventName;
@@ -47,11 +28,14 @@ function loadSession() {
     if (state.tipAmt) document.getElementById('tipAmt').value = state.tipAmt;
     if (state.taxPct) document.getElementById('taxPct').value = state.taxPct;
     if (state.extrasMode) document.getElementById('extrasMode').value = state.extrasMode;
-  } catch(e) {}
+  } catch(e) {
+    // Hash isn't a valid session, ignore
+    history.replaceState(null, '', window.location.pathname);
+  }
 }
 
 function getSessionLink() {
-  return window.location.origin + window.location.pathname + '#' + SESSION_ID;
+  return window.location.href;
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -302,7 +286,20 @@ function exportPDF() {
 
 // ── Share WhatsApp ────────────────────────────────────────────────────────────
 
-function shareWhatsApp() {
+function toggleWaMenu() {
+  document.getElementById('waMenu').classList.toggle('open');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.wa-dropdown')) {
+    var menu = document.getElementById('waMenu');
+    if (menu) menu.classList.remove('open');
+  }
+});
+
+function shareWhatsAppText() {
+  document.getElementById('waMenu').classList.remove('open');
   saveSession();
   const { subtotal, tip, tax, taxPct, totals, extrasPerPerson } = calcShares();
   const grandTotal = subtotal + tip + tax;
@@ -338,26 +335,29 @@ function shareWhatsApp() {
   window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
 }
 
+function shareWhatsAppPDF() {
+  document.getElementById('waMenu').classList.remove('open');
+  saveSession();
+  var link = getSessionLink();
+  var eventName = document.getElementById('eventName').value.trim();
+
+  // First trigger print/save as PDF, then open WhatsApp with instructions
+  var msg = '';
+  if (eventName) msg += '*' + eventName + '*\n';
+  msg += 'Please find the Split Bill PDF attached.\n';
+  msg += '\ud83d\udd17 View session: ' + link;
+
+  // Print first, then open WhatsApp after a short delay
+  exportPDF();
+  setTimeout(function() {
+    window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+  }, 500);
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 loadSession();
 render();
-
-// Populate session link bar
-(function() {
-  const link = getSessionLink();
-  const el = document.getElementById('sessionLinkText');
-  if (el) el.textContent = link;
-})();
-
-function copySessionLink() {
-  const link = getSessionLink();
-  navigator.clipboard.writeText(link).then(function() {
-    const btn = document.querySelector('.btn-copy');
-    btn.textContent = 'Copied!';
-    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
-  });
-}
 
 // Save on input changes
 ['eventName','currency','tipAmt','taxPct','extrasMode'].forEach(function(id) {

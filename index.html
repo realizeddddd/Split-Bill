@@ -71,7 +71,13 @@
       <ul class="summary-list" id="summaryList" aria-label="Per-person totals"></ul>
       <footer class="totals" id="totals" aria-label="Bill totals"></footer>
       <button class="btn-export btn-pdf" onclick="exportPDF()" aria-label="Export summary to PDF">⬇ Export PDF</button>
-      <button class="btn-export btn-wa" onclick="shareWhatsApp()" aria-label="Share summary on WhatsApp">💬 Share WhatsApp</button>
+      <div class="wa-dropdown">
+        <button class="btn-export btn-wa wa-toggle" onclick="toggleWaMenu()" aria-label="Share on WhatsApp">💬 Share WhatsApp ▾</button>
+        <div class="wa-menu" id="waMenu">
+          <button onclick="shareWhatsAppText()">📝 Share as Text</button>
+          <button onclick="shareWhatsAppPDF()">📄 Share as PDF</button>
+        </div>
+      </div>
     </section>
 
     <!-- Print-only breakdown -->

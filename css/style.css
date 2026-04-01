@@ -389,6 +389,50 @@ fieldset { border: none; padding: 0; margin: 0; }
 }
 .btn-wa:hover { opacity: 0.88; transform: translateY(-1px); }
 
+.wa-dropdown {
+  position: relative;
+  margin-top: 16px;
+}
+
+.wa-dropdown .wa-toggle {
+  margin-top: 0;
+  width: 100%;
+}
+
+.wa-menu {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  z-index: 100;
+}
+
+.wa-menu.open { display: block; }
+
+.wa-menu button {
+  display: block;
+  width: 100%;
+  padding: 11px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: 0;
+  color: var(--text);
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.wa-menu button:hover { background: rgba(255,255,255,0.06); }
+.wa-menu button + button { border-top: 1px solid var(--border); }
+
 /* ── Print / PDF ── */
 #print-only { display: none; }
 #watermark { display: none; }
@@ -430,6 +474,7 @@ fieldset { border: none; padding: 0; margin: 0; }
   .btn-export { display: none; }
   .btn-theme { display: none; }
   .session-link { display: none; }
+  .wa-dropdown { display: none; }
 
   #print-only {
     display: block;
