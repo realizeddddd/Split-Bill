@@ -7,7 +7,7 @@ var T = {
     people: 'People', items: 'Items', tipTax: 'Tip & Tax', summary: 'Summary',
     enterManually: 'Enter item(s) manually',
     addPerson: 'Name', addItem: 'Item name', cost: 'Cost',
-    add: 'Add', scanReceipt: '📷 Scan Receipt Image', or: 'OR',
+    add: 'Add',
     noPeople: 'No people added yet.', noItems: 'No items added yet.',
     addPeopleFirst: 'Add people first',
     noSplit: 'Add people to see the split.',
@@ -20,14 +20,6 @@ var T = {
     viewSession: 'View on Web',
     createdUsing: 'Created using',
     appBy: 'App by realizeddddd',
-    scanTitle: '📷 Scan Receipt',
-    uploadLabel: '📂 Tap to upload receipt image',
-    scanHint: 'Review detected items. Edit or remove before adding.',
-    scanNote: '⚠️ OCR results may not be accurate. Please review and edit each item before adding.',
-    scanEmpty: 'No items detected. Try a clearer photo or add items manually.',
-    reading: 'Reading receipt…', readingPct: 'Reading… ',
-    scanFail: '❌ Failed to read image. Try a clearer photo.',
-    back: '← Back', addAll: 'Add All Items',
     noItemsAssigned: 'No items assigned',
     tipAndTax: 'Tip & Tax',
     waTextSaved: 'Split Bill summary image saved! Attach it here.',
@@ -38,7 +30,7 @@ var T = {
     people: 'Peserta', items: 'Item', tipTax: 'Tip & Pajak', summary: 'Ringkasan',
     enterManually: 'Masukkan item secara manual',
     addPerson: 'Nama', addItem: 'Nama item', cost: 'Harga',
-    add: 'Tambah', scanReceipt: '📷 Scan Struk', or: 'ATAU',
+    add: 'Tambah',
     noPeople: 'Belum ada peserta.', noItems: 'Belum ada item.',
     addPeopleFirst: 'Tambah peserta dulu',
     noSplit: 'Tambah peserta untuk melihat pembagian.',
@@ -51,14 +43,6 @@ var T = {
     viewSession: 'Lihat di Web',
     createdUsing: 'Dibuat menggunakan',
     appBy: 'App oleh realizeddddd',
-    scanTitle: '📷 Scan Struk',
-    uploadLabel: '📂 Ketuk untuk unggah foto struk',
-    scanHint: 'Periksa item yang terdeteksi. Edit atau hapus sebelum menambahkan.',
-    scanNote: '⚠️ Hasil scan OCR mungkin tidak akurat. Mohon periksa dan koreksi setiap item sebelum ditambahkan.',
-    scanEmpty: 'Tidak ada item terdeteksi. Coba foto yang lebih jelas atau tambah manual.',
-    reading: 'Membaca struk…', readingPct: 'Membaca… ',
-    scanFail: '❌ Gagal membaca gambar. Coba foto yang lebih jelas.',
-    back: '← Kembali', addAll: 'Tambah Semua Item',
     noItemsAssigned: 'Tidak ada item',
     tipAndTax: 'Tip & Pajak',
     waTextSaved: 'Gambar Split Bill tersimpan! Lampirkan di sini.',
@@ -82,8 +66,6 @@ function applyLang() {
   document.getElementById('eventName').placeholder = t('eventPlaceholder');
   document.querySelectorAll('.btn-add-person').forEach(function(b) { b.textContent = t('add'); });
   document.querySelectorAll('.btn-add-item').forEach(function(b) { b.textContent = t('add'); });
-  document.getElementById('btn-scan').textContent = t('scanReceipt');
-  document.getElementById('or-label').textContent = t('or');
   document.getElementById('label-tip').childNodes[0].textContent = t('tip') + ' ';
   document.getElementById('label-tax').childNodes[0].textContent = t('taxPct') + ' ';
   document.getElementById('label-extras').childNodes[0].textContent = t('splitExtras') + ' ';
@@ -92,12 +74,6 @@ function applyLang() {
   document.getElementById('wa-text-btn').textContent = t('shareText');
   document.getElementById('wa-jpg-btn').textContent = t('shareJPG');
   document.getElementById('wa-pdf-btn').textContent = t('sharePDF');
-  document.getElementById('scan-title').textContent = t('scanTitle');
-  document.getElementById('uploadLabel').textContent = t('uploadLabel');
-  document.getElementById('scan-hint').textContent = t('scanHint');
-  document.getElementById('scan-note').textContent = t('scanNote');
-  document.getElementById('scan-back-btn').textContent = t('back');
-  document.getElementById('scan-confirm-btn').textContent = t('addAll');
   // Lang toggle button
   document.getElementById('langToggle').textContent = LANG === 'en' ? 'ID' : 'EN';
   render();
@@ -553,105 +529,6 @@ function shareWhatsAppPDF() {
   });
 }
 
-
-// ── Scan Receipt ──────────────────────────────────────────────────────────────
-
-var scannedItems = [];
-
-function openScanModal() {
-  document.getElementById('scanModal').classList.add('open');
-  showScanStep(1);
-}
-
-function closeScanModal() {
-  document.getElementById('scanModal').classList.remove('open');
-  document.getElementById('receiptInput').value = '';
-  document.getElementById('receiptPreview').src = '';
-  document.getElementById('receiptPreview').style.display = 'none';
-  document.getElementById('uploadLabel').textContent = t('uploadLabel');
-  scannedItems = [];
-}
-
-function showScanStep(n) {
-  document.getElementById('scanStep1').style.display = n === 1 ? 'block' : 'none';
-  document.getElementById('scanStep2').style.display = n === 2 ? 'block' : 'none';
-  document.getElementById('scanStep3').style.display = n === 3 ? 'block' : 'none';
-}
-
-function goBackScan() { showScanStep(1); }
-
-function handleReceiptImage(e) {
-  var file = e.target.files[0];
-  if (!file) return;
-  var url = URL.createObjectURL(file);
-  var preview = document.getElementById('receiptPreview');
-  preview.src = url;
-  preview.style.display = 'block';
-  document.getElementById('uploadLabel').textContent = '\u2705 ' + file.name;
-  showScanStep(2);
-  document.getElementById('scanStatus').textContent = t('reading');
-
-  Tesseract.recognize(url, 'eng', {
-    logger: function(m) {
-      if (m.status === 'recognizing text')
-        document.getElementById('scanStatus').textContent = t('readingPct') + Math.round(m.progress * 100) + '%';
-    }
-  }).then(function(result) {
-    scannedItems = parseReceiptText(result.data.text);
-    renderDetectedItems();
-    showScanStep(3);
-  }).catch(function() {
-    document.getElementById('scanStatus').textContent = t('scanFail');
-  });
-}
-
-function parseReceiptText(text) {
-  var results = [];
-  var priceRe = /^(.+?)\s+(?:Rp\.?\s*)?([\d.,]+)\s*$/i;
-  var skipRe = /^(total|subtotal|tax|pajak|tip|service|discount|diskon|change|cash|card|receipt|struk|thank|terima|date|tanggal|time|table|order|bill|no\.|#|\d{1,2}[\/\-]\d{1,2})/i;
-  text.split('\n').forEach(function(line) {
-    line = line.trim();
-    if (!line || line.length < 3 || skipRe.test(line)) return;
-    var m = line.match(priceRe);
-    if (!m) return;
-    var name = m[1].trim().replace(/[^a-zA-Z0-9\s\-\/&'().]/g, '').trim();
-    var priceStr = m[2].replace(/\./g, '').replace(',', '.');
-    var price = parseFloat(priceStr);
-    if (!name || name.length < 2 || isNaN(price) || price <= 0 || price > 100000000) return;
-    results.push({ name: name, cost: price, include: true });
-  });
-  return results;
-}
-
-function renderDetectedItems() {
-  var el = document.getElementById('detectedList');
-  if (!scannedItems.length) {
-    el.innerHTML = '<p class="scan-empty">' + t('scanEmpty') + '</p>';
-    return;
-  }
-  el.innerHTML = scannedItems.map(function(item, i) {
-    return '<div class="detected-item">'
-      + '<input type="checkbox" ' + (item.include ? 'checked' : '') + ' onchange="toggleDetected(' + i + ')" />'
-      + '<input class="di-name" type="text" value="' + item.name + '" onchange="updateDetected(' + i + ',\'name\',this.value)" />'
-      + '<input class="di-cost" type="number" value="' + item.cost + '" min="0" step="1" onchange="updateDetected(' + i + ',\'cost\',this.value)" />'
-      + '<button onclick="removeDetected(' + i + ')">\u2715</button>'
-      + '</div>';
-  }).join('');
-}
-
-function toggleDetected(i) { scannedItems[i].include = !scannedItems[i].include; }
-function updateDetected(i, field, val) { scannedItems[i][field] = field === 'cost' ? parseFloat(val) || 0 : val; }
-function removeDetected(i) { scannedItems.splice(i, 1); renderDetectedItems(); }
-
-function confirmScannedItems() {
-  var added = 0;
-  scannedItems.forEach(function(item) {
-    if (!item.include || !item.name || item.cost <= 0) return;
-    items.push({ id: Date.now() + added++, name: item.name, cost: item.cost, assignees: people.slice() });
-  });
-  if (added) { render(); saveSession(); }
-  closeScanModal();
-}
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 

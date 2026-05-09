@@ -43,8 +43,6 @@
         <input id="itemCost" type="number" placeholder="Cost" min="0" step="1" />
         <button type="submit" class="btn-primary btn-add-item">Add</button>
       </form>
-      <div class="or-divider"><span id="or-label">OR</span></div>
-      <button class="btn-scan" id="btn-scan" onclick="openScanModal()" type="button">📷 Scan Receipt Image</button>
       <ul class="item-list" id="itemList" aria-label="Item list"></ul>
     </section>
 
@@ -76,38 +74,6 @@
       </div>
     </section>
 
-    <!-- Scan Modal -->
-    <div id="scanModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="scan-title">
-      <div class="modal">
-        <div class="modal-header">
-          <span id="scan-title">📷 Scan Receipt</span>
-          <button class="modal-close" onclick="closeScanModal()" aria-label="Close">×</button>
-        </div>
-        <div id="scanStep1">
-          <label class="upload-area" for="receiptInput">
-            <span id="uploadLabel">📂 Tap to upload receipt image</span>
-            <input type="file" id="receiptInput" accept="image/*" capture="environment" onchange="handleReceiptImage(event)" />
-          </label>
-          <img id="receiptPreview" alt="Receipt preview" />
-        </div>
-        <div id="scanStep2" style="display:none">
-          <div class="scan-progress">
-            <div class="scan-spinner"></div>
-            <p id="scanStatus">Reading receipt…</p>
-          </div>
-        </div>
-        <div id="scanStep3" style="display:none">
-          <div class="scan-note" id="scan-note">⚠️ OCR results may not be accurate. Please review and edit each item before adding.</div>
-          <p class="scan-hint" id="scan-hint">Review detected items. Edit or remove before adding.</p>
-          <div id="detectedList"></div>
-          <div class="modal-actions">
-            <button class="btn-secondary" id="scan-back-btn" onclick="goBackScan()">← Back</button>
-            <button class="btn-primary" id="scan-confirm-btn" onclick="confirmScannedItems()">Add All Items</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Print-only breakdown -->
     <section id="print-only">
       <h2>Items Breakdown</h2>
@@ -118,7 +84,6 @@
 
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="js/app.js"></script>
