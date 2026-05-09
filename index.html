@@ -9,21 +9,35 @@
 <body>
   <header>
     <div class="header-top">
+      <button class="btn-theme btn-clear" id="clearBtn" onclick="clearData()" aria-label="Clear all data">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <button class="btn-theme" id="langToggle" onclick="toggleLang()" aria-label="Toggle language">🇮🇩 ID</button>
       <button class="btn-theme" id="themeToggle" aria-label="Toggle light/dark mode">🌙</button>
     </div>
     <h1>Spleetbeels</h1>
     <p class="header-sub">Split smarter, together</p>
-    <div class="event-name-wrap">
-      <input id="eventName" type="text" placeholder="Event name" autocomplete="off" />
-    </div>
   </header>
+
+  <!-- Session Tabs -->
+  <div class="tabs-bar" id="tabsBar">
+    <div class="tabs-list" id="tabsList"></div>
+    <button class="tab-new-btn" id="tabNewBtn" onclick="newSession()" aria-label="New bill">
+      <svg viewBox="0 0 24 24" fill="none" width="14" height="14"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span id="tab-new-label">New</span>
+    </button>
+  </div>
+
+  <div class="event-name-wrap">
+    <input id="eventName" type="text" placeholder="Event name" autocomplete="off" />
+  </div>
 
   <main class="container">
 
     <!-- People -->
-    <section class="card" aria-labelledby="people-heading">
+    <section class="card section-lockable" id="people-section" aria-labelledby="people-heading">
       <h2 id="people-heading"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M3 19c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="8" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M21 19c0-2.761-1.791-5-4-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>People</h2>
+      <p class="section-lock-hint" id="people-lock-hint" aria-live="polite"></p>
       <form class="row" onsubmit="addPerson(); return false;">
         <label for="personInput" class="sr-only">Name</label>
         <input id="personInput" type="text" placeholder="Name" autocomplete="off" />
@@ -33,8 +47,9 @@
     </section>
 
     <!-- Items -->
-    <section class="card" aria-labelledby="items-heading">
+    <section class="card section-lockable" id="items-section" aria-labelledby="items-heading">
       <h2 id="items-heading"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Items</h2>
+      <p class="section-lock-hint" id="items-lock-hint" aria-live="polite"></p>
       <p class="section-sub" id="section-sub-items">Enter item(s) manually</p>
       <form class="row" onsubmit="addItem(); return false;">
         <label for="itemName" class="sr-only">Item name</label>
@@ -47,8 +62,9 @@
     </section>
 
     <!-- Tip & Tax -->
-    <section class="card" aria-labelledby="extras-heading">
+    <section class="card section-lockable" id="extras-section" aria-labelledby="extras-heading">
       <h2 id="extras-heading"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8.5" cy="8.5" r="2" stroke="currentColor" stroke-width="1.8"/><circle cx="15.5" cy="15.5" r="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 19L19 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Tip &amp; Tax</h2>
+      <p class="section-lock-hint" id="extras-lock-hint" aria-live="polite"></p>
       <p class="extras-question" id="extras-question">Any tip or tax on this bill?</p>
       <fieldset class="extras">
         <legend class="sr-only">Tip, tax and split options</legend>
@@ -86,8 +102,9 @@
     </section>
 
     <!-- Summary -->
-    <section class="card" id="summary-section" aria-labelledby="summary-heading">
+    <section class="card section-lockable" id="summary-section" aria-labelledby="summary-heading">
       <h2 id="summary-heading"><svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="12" width="4" height="9" rx="1" stroke="currentColor" stroke-width="1.8"/><rect x="10" y="7" width="4" height="14" rx="1" stroke="currentColor" stroke-width="1.8"/><rect x="17" y="3" width="4" height="18" rx="1" stroke="currentColor" stroke-width="1.8"/></svg>Summary</h2>
+      <p class="section-lock-hint" id="summary-lock-hint" aria-live="polite"></p>
       <ul class="summary-list" id="summaryList" aria-label="Per-person totals"></ul>
       <footer class="totals" id="totals" aria-label="Bill totals"></footer>
       <div class="share-buttons">

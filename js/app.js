@@ -19,21 +19,30 @@ var T = {
     add: 'Add',
     extrasQuestion: 'Any tip or tax on this bill?',
     noPeople: 'No people added yet.', noItems: 'No items added yet.',
+    noSplit: 'No data yet.',
     addPeopleFirst: 'Add people first',
-    noSplit: 'Add people to see the split.',
+    addItemsFirst: 'Add items to continue',
+    addBothFirst: 'Add people and items to see the summary',
+    enterEventFirst: 'Enter an event name first',
+    clearConfirm: 'Clear all data? This cannot be undone.',
+    closeTabConfirm: 'Close this bill? All data in this tab will be lost.',
+    deleteItemConfirm: 'Remove this item?',
+    deletePersonConfirm: 'Remove this person? They will be unassigned from all items.',
+    newBill: 'New Bill',
+    tabNew: 'New',
     tip: 'Tip', taxPct: 'Tax %', splitExtras: 'Split extras',
     equally: 'Equally', proportionally: 'Proportionally',
     subtotal: 'Subtotal', total: 'Total', tax: 'Tax',
     shareWa: '💬 Share WhatsApp ▾',
     shareText: 'Share as Text', shareJPG: 'Share as JPG', sharePDF: 'Share as PDF',
-    splitBillSummary: 'Split Bill Summary',
+    splitBillSummary: 'Spleetbeels Summary',
     viewSession: 'View on Web',
     createdUsing: 'Created using',
     appBy: 'App by realizeddddd',
     noItemsAssigned: 'No items assigned',
     tipAndTax: 'Tip & Tax',
-    waTextSaved: 'Split Bill summary image saved! Attach it here.',
-    waPdfSaved: 'Split Bill PDF saved! Attach it here.',
+    waTextSaved: 'Spleetbeels summary image saved! Attach it here.',
+    waPdfSaved: 'Spleetbeels PDF saved! Attach it here.',
     eventPlaceholder: "Event name (e.g. Dinner at Lilis place)",
   },
   id: {
@@ -43,21 +52,30 @@ var T = {
     add: 'Tambah',
     extrasQuestion: 'Ada tip atau pajak di tagihan ini?',
     noPeople: 'Belum ada peserta.', noItems: 'Belum ada item.',
+    noSplit: 'Belum ada data.',
     addPeopleFirst: 'Tambah peserta dulu',
-    noSplit: 'Tambah peserta untuk melihat pembagian.',
+    addItemsFirst: 'Tambah item untuk melanjutkan',
+    addBothFirst: 'Tambah peserta dan item untuk melihat ringkasan',
+    enterEventFirst: 'Masukkan nama acara terlebih dahulu',
+    clearConfirm: 'Hapus semua data? Tindakan ini tidak dapat dibatalkan.',
+    closeTabConfirm: 'Tutup tagihan ini? Semua data di tab ini akan hilang.',
+    deleteItemConfirm: 'Hapus item ini?',
+    deletePersonConfirm: 'Hapus peserta ini? Mereka akan dihapus dari semua item.',
+    newBill: 'Tagihan Baru',
+    tabNew: 'Baru',
     tip: 'Tip', taxPct: 'Pajak %', splitExtras: 'Bagi tambahan',
     equally: 'Rata', proportionally: 'Proporsional',
     subtotal: 'Subtotal', total: 'Total', tax: 'Pajak',
     shareWa: '💬 Bagikan WhatsApp ▾',
     shareText: 'Bagikan sebagai Teks', shareJPG: 'Bagikan sebagai JPG', sharePDF: 'Bagikan sebagai PDF',
-    splitBillSummary: 'Ringkasan Split Bill',
+    splitBillSummary: 'Ringkasan Spleetbeels',
     viewSession: 'Lihat di Web',
     createdUsing: 'Dibuat menggunakan',
     appBy: 'App oleh realizeddddd',
     noItemsAssigned: 'Tidak ada item',
     tipAndTax: 'Tip & Pajak',
-    waTextSaved: 'Gambar Split Bill tersimpan! Lampirkan di sini.',
-    waPdfSaved: 'PDF Split Bill tersimpan! Lampirkan di sini.',
+    waTextSaved: 'Gambar Spleetbeels tersimpan! Lampirkan di sini.',
+    waPdfSaved: 'PDF Spleetbeels tersimpan! Lampirkan di sini.',
     eventPlaceholder: 'Nama acara (mis. Makan Malam di tempat Lilis)',
   }
 };
@@ -88,6 +106,8 @@ function applyLang() {
   document.getElementById('wa-pdf-btn-label').textContent = t('sharePDF');
   // Lang toggle button
   document.getElementById('langToggle').textContent = LANG === 'en' ? 'ID' : 'EN';
+  document.getElementById('tab-new-label').textContent = t('tabNew');
+  renderTabs();
   render();
 }
 
@@ -95,6 +115,25 @@ function toggleLang() {
   LANG = LANG === 'en' ? 'id' : 'en';
   localStorage.setItem('lang', LANG);
   applyLang();
+}
+
+function clearData() {
+  if (!confirm(t('clearConfirm'))) return;
+  people = [];
+  items = [];
+  document.getElementById('eventName').value = '';
+  document.getElementById('tipAmt').value = 0;
+  document.getElementById('taxPct').value = 0;
+  document.getElementById('extrasMode').value = 'equal';
+  document.getElementById('enableTip').checked = false;
+  document.getElementById('enableTax').checked = false;
+  document.getElementById('tipWrap').style.display = 'none';
+  document.getElementById('taxWrap').style.display = 'none';
+  document.getElementById('extrasSplitRow').style.display = 'none';
+  history.replaceState(null, '', window.location.pathname);
+  persistActiveSession();
+  renderTabs();
+  render();
 }
 
 function toggleExtras() {
@@ -108,6 +147,163 @@ function toggleExtras() {
   render();
 }
 
+
+// ── Multi-session tabs ────────────────────────────────────────────────────────
+
+var activeSessionId = null;
+
+function getSessionStore() {
+  try { return JSON.parse(localStorage.getItem('sb_sessions') || '[]'); } catch(e) { return []; }
+}
+
+function setSessionStore(sessions) {
+  localStorage.setItem('sb_sessions', JSON.stringify(sessions));
+}
+
+function getActiveId() {
+  return localStorage.getItem('sb_active') || null;
+}
+
+function setActiveId(id) {
+  localStorage.setItem('sb_active', id);
+  activeSessionId = id;
+}
+
+function makeId() {
+  return 'sb_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+}
+
+function getCurrentState() {
+  return {
+    people: people,
+    items: items,
+    eventName: document.getElementById('eventName').value,
+    tipAmt: document.getElementById('tipAmt').value,
+    taxPct: document.getElementById('taxPct').value,
+    extrasMode: document.getElementById('extrasMode').value,
+    enableTip: document.getElementById('enableTip').checked,
+    enableTax: document.getElementById('enableTax').checked,
+  };
+}
+
+function applyState(state) {
+  people = state.people || [];
+  items  = state.items  || [];
+  document.getElementById('eventName').value  = state.eventName  || '';
+  document.getElementById('tipAmt').value     = state.tipAmt     || 0;
+  document.getElementById('taxPct').value     = state.taxPct     || 0;
+  document.getElementById('extrasMode').value = state.extrasMode || 'equal';
+  var tipOn = !!(state.enableTip || parseFloat(state.tipAmt) > 0);
+  var taxOn = !!(state.enableTax || parseFloat(state.taxPct) > 0);
+  document.getElementById('enableTip').checked = tipOn;
+  document.getElementById('enableTax').checked = taxOn;
+  document.getElementById('tipWrap').style.display  = tipOn ? 'flex' : 'none';
+  document.getElementById('taxWrap').style.display  = taxOn ? 'flex' : 'none';
+  document.getElementById('extrasSplitRow').style.display = (tipOn || taxOn) ? 'flex' : 'none';
+}
+
+function persistActiveSession() {
+  if (!activeSessionId) return;
+  var sessions = getSessionStore();
+  var idx = sessions.findIndex(function(s) { return s.id === activeSessionId; });
+  var state = getCurrentState();
+  var label = state.eventName.trim() || t('newBill');
+  if (idx >= 0) {
+    sessions[idx].state = state;
+    sessions[idx].label = label;
+  }
+  setSessionStore(sessions);
+}
+
+function renderTabs() {
+  var sessions = getSessionStore();
+  var list = document.getElementById('tabsList');
+  if (!list) return;
+  list.innerHTML = sessions.map(function(s) {
+    var active = s.id === activeSessionId ? ' tab-active' : '';
+    return '<div class="tab-item' + active + '" data-id="' + s.id + '">'
+      + '<span class="tab-label" onclick="switchSession(\'' + s.id + '\')">' + escHtml(s.label) + '</span>'
+      + (sessions.length > 1
+          ? '<button class="tab-close" onclick="closeSession(\'' + s.id + '\')" aria-label="Close">×</button>'
+          : '')
+      + '</div>';
+  }).join('');
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function switchSession(id) {
+  persistActiveSession();
+  var sessions = getSessionStore();
+  var session = sessions.find(function(s) { return s.id === id; });
+  if (!session) return;
+  setActiveId(id);
+  applyState(session.state);
+  render();
+  renderTabs();
+}
+
+function newSession() {
+  persistActiveSession();
+  var id = makeId();
+  var emptyState = { people:[], items:[], eventName:'', tipAmt:0, taxPct:0, extrasMode:'equal', enableTip:false, enableTax:false };
+  var sessions = getSessionStore();
+  sessions.push({ id: id, label: t('newBill'), state: emptyState });
+  setSessionStore(sessions);
+  setActiveId(id);
+  applyState(emptyState);
+  render();
+  renderTabs();
+}
+
+function closeSession(id) {
+  if (!confirm(t('closeTabConfirm'))) return;
+  var sessions = getSessionStore();
+  if (sessions.length <= 1) return;
+  var idx = sessions.findIndex(function(s) { return s.id === id; });
+  sessions.splice(idx, 1);
+  setSessionStore(sessions);
+  // if closing active, switch to neighbour
+  if (id === activeSessionId) {
+    var next = sessions[Math.min(idx, sessions.length - 1)];
+    setActiveId(next.id);
+    applyState(next.state);
+    render();
+  }
+  renderTabs();
+}
+
+function initSessions() {
+  var sessions = getSessionStore();
+  // migrate: if no sessions stored yet, seed from current URL hash or empty
+  if (!sessions.length) {
+    var id = makeId();
+    var hash = window.location.hash.slice(1);
+    var state = { people:[], items:[], eventName:'', tipAmt:0, taxPct:0, extrasMode:'equal', enableTip:false, enableTax:false };
+    if (hash) {
+      try {
+        var decoded = decodeState(hash);
+        if (decoded) {
+          state = Object.assign(state, decoded);
+          state.enableTip = parseFloat(decoded.tipAmt) > 0;
+          state.enableTax = parseFloat(decoded.taxPct) > 0;
+        }
+      } catch(e) {}
+    }
+    state.label = state.eventName || t('newBill');
+    sessions = [{ id: id, label: state.label, state: state }];
+    setSessionStore(sessions);
+  }
+  var storedActive = getActiveId();
+  var found = sessions.find(function(s) { return s.id === storedActive; });
+  if (!found) { storedActive = sessions[0].id; }
+  setActiveId(storedActive);
+  var activeSession = sessions.find(function(s) { return s.id === storedActive; });
+  applyState(activeSession.state);
+  renderTabs();
+}
 
 // ── Session ───────────────────────────────────────────────────────────────────
 
@@ -134,9 +330,12 @@ function saveSession() {
     tipAmt: document.getElementById('tipAmt').value,
     taxPct: document.getElementById('taxPct').value,
     extrasMode: document.getElementById('extrasMode').value,
+    enableTip: document.getElementById('enableTip').checked,
+    enableTax: document.getElementById('enableTax').checked,
   };
   var encoded = encodeState(state);
   if (encoded) history.replaceState(null, '', '#' + encoded);
+  persistActiveSession();
 }
 
 function loadSession() {
@@ -174,6 +373,7 @@ function addPerson() {
 }
 
 function removePerson(name) {
+  if (!confirm(t('deletePersonConfirm'))) return;
   people = people.filter(function(p) { return p !== name; });
   items.forEach(function(item) {
     item.assignees = item.assignees.filter(function(p) { return p !== name; });
@@ -192,6 +392,7 @@ function addItem() {
 }
 
 function removeItem(id) {
+  if (!confirm(t('deleteItemConfirm'))) return;
   items = items.filter(function(i) { return i.id !== id; });
   render(); saveSession();
 }
@@ -220,6 +421,72 @@ function render() {
   renderPeople();
   renderItems();
   renderSummary();
+  updateSectionLocks();
+  updateShareButtons();
+}
+
+function updateShareButtons() {
+  var hasData = people.length > 0 && items.length > 0;
+  ['wa-text-btn', 'wa-jpg-btn', 'wa-pdf-btn'].forEach(function(id) {
+    var btn = document.getElementById(id);
+    // only manage disabled state when summary section is unlocked
+    if (!btn.closest('.section-locked')) {
+      btn.disabled = !hasData;
+    }
+  });
+}
+
+function updateSectionLocks() {
+  var hasPeople = people.length > 0;
+  var hasItems  = items.length > 0;
+  var hasEvent  = document.getElementById('eventName').value.trim().length > 0;
+
+  // People section — needs event name
+  lockSection('people-section', 'people-lock-hint',
+    !hasEvent, t('enterEventFirst'));
+
+  // Items section — needs people
+  lockSection('items-section', 'items-lock-hint',
+    !hasPeople, t('addPeopleFirst'));
+
+  // Tip & Tax section — needs items
+  lockSection('extras-section', 'extras-lock-hint',
+    !hasItems, t('addItemsFirst'));
+
+  // Summary section — needs both
+  var summaryHint = !hasPeople && !hasItems ? t('addBothFirst')
+    : !hasPeople ? t('addPeopleFirst')
+    : !hasItems  ? t('addItemsFirst')
+    : '';
+  lockSection('summary-section', 'summary-lock-hint',
+    !hasPeople || !hasItems, summaryHint);
+}
+
+function lockSection(sectionId, hintId, locked, hintText) {
+  var section = document.getElementById(sectionId);
+  var hint    = document.getElementById(hintId);
+  if (!section) return;
+
+  if (locked) {
+    section.classList.add('section-locked');
+    if (hint) hint.textContent = hintText;
+    section.querySelectorAll('input, select, button, textarea').forEach(function(el) {
+      el.disabled = true;
+    });
+  } else {
+    section.classList.remove('section-locked');
+    if (hint) hint.textContent = '';
+    section.querySelectorAll('input, select, button, textarea').forEach(function(el) {
+      el.disabled = false;
+    });
+    // restore tip/tax wrap visibility after unlock
+    if (sectionId === 'extras-section') {
+      document.getElementById('tipWrap').style.display =
+        document.getElementById('enableTip').checked ? 'flex' : 'none';
+      document.getElementById('taxWrap').style.display =
+        document.getElementById('enableTax').checked ? 'flex' : 'none';
+    }
+  }
 }
 
 function renderPeople() {
@@ -246,10 +513,9 @@ function renderItems() {
       var active = item.assignees.includes(p) ? ' active' : '';
       return '<button class="assignee-chip' + active + '" onclick="toggleAssignee(' + item.id + ',\'' + p + '\')" aria-pressed="' + item.assignees.includes(p) + '">' + p + '</button>';
     }).join('');
-    var noPeople = !people.length ? '<span style="font-size:0.8rem;color:#9ca3af">' + t('addPeopleFirst') + '</span>' : '';
     return '<li class="item-row">'
       + '<span>' + item.name + ' \u2014 ' + fmt(item.cost) + '</span>'
-      + '<div class="assignees" role="group">' + chips + noPeople + '</div>'
+      + '<div class="assignees" role="group">' + chips + '</div>'
       + '<button class="btn-danger" onclick="removeItem(' + item.id + ')">\u2715</button>'
       + '</li>';
   }).join('');
@@ -335,7 +601,7 @@ function buildCardHTML() {
     eventNameEl.id = 'print-event-name';
     document.querySelector('header').appendChild(eventNameEl);
   }
-  eventNameEl.textContent = eventName || 'Split Bill';
+  eventNameEl.textContent = eventName || 'Spleetbeels';
 
   var html = '<div class="pdf-grid">';
   people.forEach(function(person) {
@@ -366,14 +632,14 @@ function buildCardHTML() {
 
   document.getElementById('print-breakdown').innerHTML = html;
   document.getElementById('watermark').innerHTML =
-    t('createdUsing') + ' <a href="' + link + '">Split Bill</a> ' + t('appBy')
+    t('createdUsing') + ' <a href="' + link + '">Spleetbeels</a> ' + t('appBy')
     + ' \u2022 <a href="' + link + '">' + t('viewSession') + '</a>';
 }
 
 function captureCard(callback) {
   buildCardHTML();
 
-  var eventName = document.getElementById('eventName').value.trim() || 'Split Bill';
+  var eventName = document.getElementById('eventName').value.trim() || 'Spleetbeels';
   var s = calcShares();
   var grandTotal = s.subtotal + s.tip + s.tax;
   var link = getSessionLink();
@@ -392,25 +658,30 @@ function captureCard(callback) {
   var cardHTML = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
     + '<style>'
     + '*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,sans-serif;}'
-    + 'body{background:#fff;width:559px;padding:0;}'
-    + '.hdr{background:linear-gradient(135deg,#6366f1,#a855f7,#ec4899);padding:14px 18px 12px;border-radius:0 0 10px 10px;margin-bottom:12px;text-align:center;}'
-    + '.hdr h1{font-size:20px;font-weight:800;color:#fff;margin-bottom:3px;}'
-    + '.hdr p{font-size:12px;color:rgba(255,255,255,0.85);font-style:italic;}'
+    + 'body{background:#f0fdf8;width:559px;padding:0;}'
+    + '.hdr{background:transparent;padding:18px 20px 10px;margin-bottom:12px;text-align:center;}'
+    + '.hdr-logo{font-size:30px;font-weight:900;letter-spacing:-1px;line-height:1.1;color:#10b981;margin-bottom:4px;}'
+    + '.hdr-tagline{font-size:9px;color:#6b7280;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px;}'
+    + '.hdr-event{font-size:12px;color:#374151;font-style:italic;}'
     + '.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px;margin-bottom:8px;}'
-    + '.block{border-radius:8px;overflow:hidden;border:1px solid #e5e7eb;}'
+    + '.block{border-radius:8px;overflow:hidden;border:1px solid #e5e7eb;background:#fff;}'
     + '.pname{font-size:11px;font-weight:700;padding:5px 8px;color:#fff;}'
     + 'table{width:100%;border-collapse:collapse;}'
     + 'td{font-size:10px;padding:3px 7px;border-bottom:1px solid #f1f5f9;color:#374151;}'
     + 'td.amt{text-align:right;white-space:nowrap;font-weight:500;}'
     + 'td.note{font-size:8px;color:#9ca3af;}'
     + '.extras td{color:#6b7280;font-style:italic;}'
-    + '.ptotal td{font-weight:700;border-top:1.5px solid #e5e7eb;border-bottom:none;background:#f8fafc;color:#1a1a2e;}'
-    + '.totals-bar{display:flex;margin:0 12px 8px;border-radius:8px;overflow:hidden;}'
-    + '.totals-bar span{flex:1;text-align:center;padding:5px 4px;font-size:9px;color:#fff;font-weight:600;}'
-    + '.footer{text-align:center;font-size:8px;color:#9ca3af;border-top:1px solid #e5e7eb;padding:6px 12px 10px;margin-top:4px;}'
-    + '.footer a{color:#6366f1;}'
+    + '.ptotal td{font-weight:700;border-top:1.5px solid #e5e7eb;border-bottom:none;background:#f0fdf8;color:#0a0a0a;}'
+    + '.totals-bar{display:flex;margin:0 12px 8px;border-radius:8px;overflow:hidden;border:1px solid rgba(16,185,129,0.2);}'
+    + '.totals-bar span{flex:1;text-align:center;padding:5px 4px;font-size:9px;font-weight:600;}'
+    + '.footer{text-align:center;font-size:8px;color:#6b7280;border-top:1px solid rgba(16,185,129,0.15);padding:6px 12px 10px;margin-top:4px;background:transparent;}'
+    + '.footer a{color:#10b981;}'
     + '</style></head><body>'
-    + '<div class="hdr"><h1>Split Bill</h1><p>' + eventName + '</p></div>'
+    + '<div class="hdr">'
+    +   '<div class="hdr-logo">Spleetbeels</div>'
+    +   '<div class="hdr-tagline">Split smarter, together</div>'
+    +   (eventName ? '<div class="hdr-event">' + eventName + '</div>' : '')
+    + '</div>'
     + '<div class="grid">';
 
   people.forEach(function(person, idx) {
@@ -444,14 +715,14 @@ function captureCard(callback) {
 
   // Totals bar
   cardHTML += '<div class="totals-bar">'
-    + '<span style="background:#6366f1">' + t('subtotal') + ': ' + fmt(s.subtotal) + '</span>';
-  if (s.tip > 0) cardHTML += '<span style="background:#a855f7">' + t('tip') + ': ' + fmt(s.tip) + '</span>';
-  if (s.tax > 0) cardHTML += '<span style="background:#ec4899">' + t('tax') + ' ' + s.taxPct + '%: ' + fmt(s.tax) + '</span>';
-  cardHTML += '<span style="background:#1a1a2e;font-size:10px;font-weight:800">' + t('total') + ': ' + fmt(grandTotal) + '</span>'
+    + '<span style="color:#374151;background:#ecfdf5">' + t('subtotal') + ': ' + fmt(s.subtotal) + '</span>';
+  if (s.tip > 0) cardHTML += '<span style="color:#374151;background:#d1fae5">' + t('tip') + ': ' + fmt(s.tip) + '</span>';
+  if (s.tax > 0) cardHTML += '<span style="color:#374151;background:#ccfbf1">' + t('tax') + ' ' + s.taxPct + '%: ' + fmt(s.tax) + '</span>';
+  cardHTML += '<span style="background:#10b981;color:#fff;font-size:10px;font-weight:800">' + t('total') + ': ' + fmt(grandTotal) + '</span>'
     + '</div>';
 
   cardHTML += '<div class="footer">'
-    + t('createdUsing') + ' <a href="' + link + '">Split Bill</a> ' + t('appBy')
+    + t('createdUsing') + ' <a href="' + link + '">Spleetbeels</a> ' + t('appBy')
     + ' &bull; <a href="' + link + '">' + t('viewSession') + '</a>'
     + '</div></body></html>';
 
@@ -557,12 +828,14 @@ function shareWhatsAppPDF() {
 
 loadSession();
 applyLang();
+initSessions();
 
 ['eventName','tipAmt','taxPct','extrasMode'].forEach(function(id) {
   document.getElementById(id).addEventListener('change', saveSession);
 });
 document.getElementById('tipAmt').addEventListener('input', function() { render(); saveSession(); });
 document.getElementById('taxPct').addEventListener('input', function() { render(); saveSession(); });
+document.getElementById('eventName').addEventListener('input', function() { render(); saveSession(); renderTabs(); });
 
 // Theme toggle
 (function() {
