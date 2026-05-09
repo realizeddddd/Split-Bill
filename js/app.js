@@ -2,12 +2,22 @@
 
 var LANG = localStorage.getItem('lang') || 'en';
 
+// ── Section icons (SVG) ───────────────────────────────────────────────────────
+
+var ICONS = {
+  people: '<svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M3 19c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="8" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M21 19c0-2.761-1.791-5-4-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
+  items:  '<svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/><path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  tipTax: '<svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8.5" cy="8.5" r="2" stroke="currentColor" stroke-width="1.8"/><circle cx="15.5" cy="15.5" r="2" stroke="currentColor" stroke-width="1.8"/><path d="M5 19L19 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  summary:'<svg class="card-icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="12" width="4" height="9" rx="1" stroke="currentColor" stroke-width="1.8"/><rect x="10" y="7" width="4" height="14" rx="1" stroke="currentColor" stroke-width="1.8"/><rect x="17" y="3" width="4" height="18" rx="1" stroke="currentColor" stroke-width="1.8"/></svg>'
+};
+
 var T = {
   en: {
     people: 'People', items: 'Items', tipTax: 'Tip & Tax', summary: 'Summary',
     enterManually: 'Enter item(s) manually',
     addPerson: 'Name', addItem: 'Item name', cost: 'Cost',
     add: 'Add',
+    extrasQuestion: 'Any tip or tax on this bill?',
     noPeople: 'No people added yet.', noItems: 'No items added yet.',
     addPeopleFirst: 'Add people first',
     noSplit: 'Add people to see the split.',
@@ -15,7 +25,7 @@ var T = {
     equally: 'Equally', proportionally: 'Proportionally',
     subtotal: 'Subtotal', total: 'Total', tax: 'Tax',
     shareWa: '💬 Share WhatsApp ▾',
-    shareText: '📝 Share as Text', shareJPG: '🖼️ Share as JPG', sharePDF: '📄 Share as PDF',
+    shareText: 'Share as Text', shareJPG: 'Share as JPG', sharePDF: 'Share as PDF',
     splitBillSummary: 'Split Bill Summary',
     viewSession: 'View on Web',
     createdUsing: 'Created using',
@@ -31,6 +41,7 @@ var T = {
     enterManually: 'Masukkan item secara manual',
     addPerson: 'Nama', addItem: 'Nama item', cost: 'Harga',
     add: 'Tambah',
+    extrasQuestion: 'Ada tip atau pajak di tagihan ini?',
     noPeople: 'Belum ada peserta.', noItems: 'Belum ada item.',
     addPeopleFirst: 'Tambah peserta dulu',
     noSplit: 'Tambah peserta untuk melihat pembagian.',
@@ -38,7 +49,7 @@ var T = {
     equally: 'Rata', proportionally: 'Proporsional',
     subtotal: 'Subtotal', total: 'Total', tax: 'Pajak',
     shareWa: '💬 Bagikan WhatsApp ▾',
-    shareText: '📝 Bagikan sebagai Teks', shareJPG: '🖼️ Bagikan sebagai JPG', sharePDF: '📄 Bagikan sebagai PDF',
+    shareText: 'Bagikan sebagai Teks', shareJPG: 'Bagikan sebagai JPG', sharePDF: 'Bagikan sebagai PDF',
     splitBillSummary: 'Ringkasan Split Bill',
     viewSession: 'Lihat di Web',
     createdUsing: 'Dibuat menggunakan',
@@ -55,25 +66,26 @@ function t(key) { return (T[LANG] && T[LANG][key]) || T.en[key] || key; }
 
 function applyLang() {
   // Static labels
-  document.getElementById('people-heading').innerHTML = '<span class="card-icon">👥</span>' + t('people');
-  document.getElementById('items-heading').innerHTML = '<span class="card-icon">🧾</span>' + t('items');
-  document.getElementById('extras-heading').innerHTML = '<span class="card-icon">✨</span>' + t('tipTax');
-  document.getElementById('summary-heading').innerHTML = '<span class="card-icon">📊</span>' + t('summary');
+  document.getElementById('people-heading').innerHTML = ICONS.people + t('people');
+  document.getElementById('items-heading').innerHTML = ICONS.items + t('items');
+  document.getElementById('extras-heading').innerHTML = ICONS.tipTax + t('tipTax');
+  document.getElementById('summary-heading').innerHTML = ICONS.summary + t('summary');
   document.getElementById('section-sub-items').textContent = t('enterManually');
+  document.getElementById('extras-question').textContent = t('extrasQuestion');
   document.getElementById('personInput').placeholder = t('addPerson');
   document.getElementById('itemName').placeholder = t('addItem');
   document.getElementById('itemCost').placeholder = t('cost');
   document.getElementById('eventName').placeholder = t('eventPlaceholder');
   document.querySelectorAll('.btn-add-person').forEach(function(b) { b.textContent = t('add'); });
   document.querySelectorAll('.btn-add-item').forEach(function(b) { b.textContent = t('add'); });
-  document.getElementById('label-tip').childNodes[0].textContent = t('tip') + ' ';
-  document.getElementById('label-tax').childNodes[0].textContent = t('taxPct') + ' ';
+  document.getElementById('label-tip').textContent = t('tip');
+  document.getElementById('label-tax').textContent = t('taxPct');
   document.getElementById('label-extras').childNodes[0].textContent = t('splitExtras') + ' ';
   document.getElementById('extrasMode').options[0].text = t('equally');
   document.getElementById('extrasMode').options[1].text = t('proportionally');
-  document.getElementById('wa-text-btn').textContent = t('shareText');
-  document.getElementById('wa-jpg-btn').textContent = t('shareJPG');
-  document.getElementById('wa-pdf-btn').textContent = t('sharePDF');
+  document.getElementById('wa-text-btn-label').textContent = t('shareText');
+  document.getElementById('wa-jpg-btn-label').textContent = t('shareJPG');
+  document.getElementById('wa-pdf-btn-label').textContent = t('sharePDF');
   // Lang toggle button
   document.getElementById('langToggle').textContent = LANG === 'en' ? 'ID' : 'EN';
   render();
@@ -83,6 +95,17 @@ function toggleLang() {
   LANG = LANG === 'en' ? 'id' : 'en';
   localStorage.setItem('lang', LANG);
   applyLang();
+}
+
+function toggleExtras() {
+  var tipOn = document.getElementById('enableTip').checked;
+  var taxOn = document.getElementById('enableTax').checked;
+  document.getElementById('tipWrap').style.display = tipOn ? 'flex' : 'none';
+  document.getElementById('taxWrap').style.display = taxOn ? 'flex' : 'none';
+  document.getElementById('extrasSplitRow').style.display = (tipOn || taxOn) ? 'flex' : 'none';
+  if (!tipOn) { document.getElementById('tipAmt').value = 0; }
+  if (!taxOn) { document.getElementById('taxPct').value = 0; }
+  render();
 }
 
 
